@@ -142,6 +142,8 @@ class Game {
         }
 
         this.state = STATE.MENU;
+        // Auto-start level 0 for testing Sprint 2
+        this.startLevel(0);
         requestAnimationFrame(this.loop.bind(this));
     }
 
