@@ -107,10 +107,12 @@ class Game {
         this.recordings = [];
         this.player = null;
         this.echoes = [];
+        this.player = null;
         this.level = null;
-        this.particles = null;
-        this.audio = null;
-        this.ui = null;
+        this.ui = new UI(this);
+        
+        this.particles = new ParticleSystem();
+        this.audio = new AudioManager();
         this.camera = new Camera();
         this.frameCount = 0;
         this.levelProgress = [];
@@ -179,6 +181,9 @@ class Game {
             }
             return; 
         }
+
+        this.ui.update();
+        if (this.particles) this.particles.update();
 
         switch (this.state) {
             case STATE.MENU: this.ui.updateMenu(); break;
@@ -312,9 +317,10 @@ class Game {
     startLevel(levelIndex) {
         this.startTransition(() => {
             this.currentLevel = levelIndex;
-            this.level = new Level(LEVEL_DATA[levelIndex]);
+            this.levelData = LEVEL_DATA[levelIndex];
+            this.level = new Level(this.levelData);
             this.currentRound = 0;
-            this.maxRounds = LEVEL_DATA[levelIndex].maxRounds;
+            this.maxRounds = this.levelData.maxRounds;
             this.recordings = [];
             this.echoes = [];
             this.player = new Player(this.level.spawnX, this.level.spawnY);
@@ -349,7 +355,11 @@ class Game {
         const starsEarned = 3; 
         this.levelStars[this.currentLevel] = Math.max(this.levelStars[this.currentLevel], starsEarned);
         this.saveProgress();
-        this.state = STATE.LEVEL_COMPLETE;
+        
+        // Auto-advance for testing Sprint 5
+        let nextLevel = this.currentLevel + 1;
+        if (nextLevel >= LEVEL_DATA.length) nextLevel = 0;
+        this.startLevel(nextLevel);
     }
 
     startTransition(callback) {

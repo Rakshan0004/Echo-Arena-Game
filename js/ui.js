@@ -53,6 +53,36 @@ class UI {
         ctx.fillText('R — END ROUND', CANVAS.WIDTH - 20, CANVAS.HEIGHT - 20);
         ctx.globalAlpha = 1;
         
+        // Level title & hint (fades out)
+        if (this.game.level) {
+            const titleAlpha = Math.max(0, 1 - (this.game.frameCount - 120) / 120);
+            if (titleAlpha > 0) {
+                ctx.globalAlpha = titleAlpha;
+                ctx.textAlign = 'center';
+                
+                // Level Name
+                ctx.fillStyle = COLORS.NEON_PURPLE;
+                ctx.font = 'bold 36px Orbitron, sans-serif';
+                ctx.shadowColor = COLORS.NEON_PURPLE;
+                ctx.shadowBlur = 15;
+                ctx.fillText(`LEVEL ${this.game.currentLevel + 1}: ${this.game.level.name}`, CANVAS.WIDTH / 2, CANVAS.HEIGHT / 3);
+                
+                // Subtitle
+                ctx.fillStyle = COLORS.TEXT_PRIMARY;
+                ctx.font = '18px Inter, sans-serif';
+                ctx.shadowBlur = 0;
+                ctx.fillText(this.game.levelData ? this.game.levelData.subtitle : '', CANVAS.WIDTH / 2, CANVAS.HEIGHT / 3 + 30);
+                
+                // Hint
+                if (this.game.levelData && this.game.levelData.hint) {
+                    ctx.fillStyle = COLORS.NEON_CYAN;
+                    ctx.font = '16px Inter, sans-serif';
+                    ctx.fillText(this.game.levelData.hint, CANVAS.WIDTH / 2, CANVAS.HEIGHT / 3 + 80);
+                }
+                ctx.globalAlpha = 1;
+            }
+        }
+        
         ctx.restore();
     }
     

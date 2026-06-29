@@ -59,6 +59,11 @@ class Echo {
             this.trailPositions.shift();
         }
         
+        // Randomly emit echo trail particles for extra juice
+        if (typeof game !== 'undefined' && game.particles && Math.random() < 0.3) {
+            game.particles.emit('echoTrail', this.x + this.w/2, this.y + this.h/2, { color: this.color });
+        }
+        
         // Afterimage every 4 frames
         if (this.currentFrame % 4 === 0) {
             this.afterImages.push({ x: this.x, y: this.y, alpha: 0.4, life: 20 });

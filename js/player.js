@@ -78,27 +78,33 @@ class Player {
         this.dead = true;
         this.deathTimer = 60;
         if (typeof game !== 'undefined' && game.audio) {
-            // game.audio.play('death');
+            game.audio.play('death');
+            game.particles.emit('death', this.x + this.w/2, this.y + this.h/2);
         }
         if (typeof game !== 'undefined' && game.camera) {
             game.camera.shake(5, 12);
         }
-        // Emit particles
-        if (typeof game !== 'undefined' && game.particles) {
-            // game.particles.emitDeath(...)
+    }
+
+    emitJumpParticles() {
+        if (typeof game !== 'undefined' && game.particles && game.audio) {
+            game.audio.play('jump');
+            game.particles.emit('jump', this.x + this.w/2, this.y + this.h);
         }
     }
     
-    emitJumpParticles() {
-        // Will hook up in Sprint 6
-    }
-    
     emitWallJumpParticles() {
-        // Will hook up in Sprint 6
+        if (typeof game !== 'undefined' && game.particles && game.audio) {
+            game.audio.play('wallJump');
+            game.particles.emit('wallJump', this.x + this.w/2, this.y + this.h/2, { facing: this.facing });
+        }
     }
     
     emitLandParticles() {
-        // Will hook up in Sprint 6
+        if (typeof game !== 'undefined' && game.particles && game.audio && this.vy > 5) {
+            game.audio.play('land');
+            game.particles.emit('land', this.x + this.w/2, this.y + this.h);
+        }
     }
     
     getRecording() {

@@ -128,6 +128,7 @@ class Level {
 
         // 2. Switches & Doors
         for (const [key, sw] of Object.entries(this.switches)) {
+            const wasPressed = sw.pressed;
             sw.pressed = false;
             const plateRect = { x: sw.x + 4, y: sw.y + TILE.SIZE - 8, w: TILE.SIZE - 8, h: 8 };
             for (const entity of activeEntities) {
@@ -135,6 +136,10 @@ class Level {
                     sw.pressed = true;
                     break;
                 }
+            }
+            if (!wasPressed && sw.pressed && typeof game !== 'undefined' && game.particles && game.audio) {
+                game.audio.play('switchPress');
+                game.particles.emit('switchPress', sw.x + TILE.SIZE/2, sw.y + TILE.SIZE);
             }
             if (this.doors[key]) {
                 this.doors[key].forEach(d => d.open = sw.pressed);
@@ -214,8 +219,9 @@ class Level {
                 const starRect = { x: star.x + 8, y: star.y + 8, w: 24, h: 24 };
                 if (rectsOverlap(player, starRect)) {
                     star.collected = true;
-                    if (typeof game !== 'undefined' && game.particles) {
-                        // game.particles.emit('starCollect', star.x + 20, star.y + 20);
+                    if (typeof game !== 'undefined' && game.particles && game.audio) {
+                        game.audio.play('star');
+                        game.particles.emit('starCollect', star.x + TILE.SIZE/2, star.y + TILE.SIZE/2);
                     }
                 }
             }
@@ -224,7 +230,15 @@ class Level {
         // 6. Portal
         const portalRect = { x: this.portalX + 4, y: this.portalY + 4, w: TILE.SIZE - 8, h: TILE.SIZE - 8 };
         const portalActive = Object.values(this.switches).every(s => s.pressed) || Object.keys(this.switches).length === 0;
+        
+        if (portalActive && typeof game !== 'undefined' && game.particles) {
+            if (frameCount % 10 === 0) {
+                game.particles.emit('portal', this.portalX + TILE.SIZE/2, this.portalY + TILE.SIZE/2);
+            }
+        }
+        
         if (portalActive && !player.dead && rectsOverlap(player, portalRect)) {
+            if (typeof game !== 'undefined' && game.audio) game.audio.play('portal');
             return 'COMPLETE';
         }
         
