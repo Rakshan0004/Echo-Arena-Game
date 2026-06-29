@@ -14,7 +14,7 @@ const InputManager = {
                 }
                 return;
             }
-            const gameKeys = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Space', 'KeyW', 'KeyA', 'KeyS', 'KeyD', 'KeyR', 'Escape', 'Enter'];
+            const gameKeys = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Space', 'KeyW', 'KeyA', 'KeyS', 'KeyD', 'KeyG', 'Escape', 'Enter'];
             if (gameKeys.includes(e.code)) {
                 e.preventDefault();
             }
@@ -25,7 +25,7 @@ const InputManager = {
         });
 
         window.addEventListener('keyup', (e) => {
-            const gameKeys = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Space', 'KeyW', 'KeyA', 'KeyS', 'KeyD', 'KeyR', 'Escape', 'Enter'];
+            const gameKeys = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Space', 'KeyW', 'KeyA', 'KeyS', 'KeyD', 'KeyG', 'Escape', 'Enter'];
             if (gameKeys.includes(e.code)) {
                 e.preventDefault();
             }
@@ -247,7 +247,7 @@ class Game {
             this.player.die();
         }
         
-        if (InputManager.wasPressed('KeyR') && !this.player.dead) {
+        if (InputManager.wasPressed('KeyG') && !this.player.dead) {
             if (this.currentRound + 1 < this.maxRounds) {
                 if (this.audio) this.audio.play('roundEnd');
                 this.recordings.push(this.player.getRecording());

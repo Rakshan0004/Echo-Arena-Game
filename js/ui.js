@@ -229,13 +229,13 @@ class UI {
         ctx.textAlign = 'right';
         ctx.fillText(`ECHOES: ${this.game.echoes.length}`, CANVAS.WIDTH - 20, 30);
         
-        // Bottom Right - End Round prompt
+        // Bottom Right - Place Ghost prompt
         const pulseAlpha = 0.4 + Math.sin(this.game.frameCount * 0.05) * 0.2;
         ctx.globalAlpha = pulseAlpha;
         ctx.fillStyle = COLORS.NEON_GREEN;
         ctx.font = '12px Orbitron, sans-serif';
         ctx.textAlign = 'right';
-        ctx.fillText('R — END ROUND', CANVAS.WIDTH - 20, CANVAS.HEIGHT - 20);
+        ctx.fillText('G — PLACE GHOST', CANVAS.WIDTH - 20, CANVAS.HEIGHT - 20);
         ctx.globalAlpha = 1;
         
         // Level hint fade out
