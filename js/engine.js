@@ -70,17 +70,25 @@ class Camera {
     }
 
     follow(targetX, targetY, levelWidth, levelHeight) {
-        this.targetX = targetX - CANVAS.WIDTH / 2;
-        this.targetY = targetY - CANVAS.HEIGHT / 2;
+        let desiredX = targetX - CANVAS.WIDTH / 2;
+        let desiredY = targetY - CANVAS.HEIGHT / 2;
 
-        const maxX = Math.max(0, levelWidth - CANVAS.WIDTH);
-        const maxY = Math.max(0, levelHeight - CANVAS.HEIGHT);
+        if (levelWidth < CANVAS.WIDTH) {
+            desiredX = -(CANVAS.WIDTH - levelWidth) / 2;
+        } else {
+            const maxX = Math.max(0, levelWidth - CANVAS.WIDTH);
+            desiredX = clamp(desiredX, 0, maxX);
+        }
 
-        this.targetX = clamp(this.targetX, 0, maxX);
-        this.targetY = clamp(this.targetY, 0, maxY);
+        if (levelHeight < CANVAS.HEIGHT) {
+            desiredY = -(CANVAS.HEIGHT - levelHeight) / 2;
+        } else {
+            const maxY = Math.max(0, levelHeight - CANVAS.HEIGHT);
+            desiredY = clamp(desiredY, 0, maxY);
+        }
 
-        this.x = lerp(this.x, this.targetX, 0.08);
-        this.y = lerp(this.y, this.targetY, 0.08);
+        this.x = lerp(this.x, desiredX, 0.08);
+        this.y = lerp(this.y, desiredY, 0.08);
     }
 
     shake(intensity, duration) {
@@ -167,9 +175,12 @@ class Game {
     }
 
     resizeCanvas() {
-        const scale = Math.min(window.innerWidth / CANVAS.WIDTH, window.innerHeight / CANVAS.HEIGHT) * 0.95;
-        this.canvas.style.width = (CANVAS.WIDTH * scale) + 'px';
-        this.canvas.style.height = (CANVAS.HEIGHT * scale) + 'px';
+        CANVAS.WIDTH = window.innerWidth;
+        CANVAS.HEIGHT = window.innerHeight;
+        this.canvas.width = CANVAS.WIDTH;
+        this.canvas.height = CANVAS.HEIGHT;
+        this.canvas.style.width = CANVAS.WIDTH + 'px';
+        this.canvas.style.height = CANVAS.HEIGHT + 'px';
     }
 
     loop(timestamp) {

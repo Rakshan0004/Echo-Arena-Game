@@ -433,15 +433,16 @@ class Level {
             ctx.arc(0, 0, 14, 0, Math.PI*2);
             ctx.fill();
         } else {
-            ctx.strokeStyle = hexToRgba(COLORS.NEON_CYAN, 0.3);
+            ctx.strokeStyle = hexToRgba(COLORS.NEON_ORANGE, 0.4);
             ctx.lineWidth = 2;
             ctx.beginPath();
-            ctx.arc(0, 0, 14, 0, Math.PI*2);
+            ctx.arc(0, 0, 16, 0, Math.PI*2);
             ctx.stroke();
-            ctx.fillStyle = COLORS.TEXT_MUTED;
-            ctx.font = '14px Orbitron';
+            
+            ctx.fillStyle = COLORS.NEON_ORANGE;
+            ctx.font = '10px Orbitron';
             ctx.textAlign = 'center';
-            ctx.fillText('X', 0, 5);
+            ctx.fillText('LOCKED', 0, 4);
         }
         ctx.restore();
     }
