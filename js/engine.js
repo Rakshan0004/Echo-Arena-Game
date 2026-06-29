@@ -261,42 +261,52 @@ class Game {
     renderBackgroundStars() {
         if (!this.bgStars) {
             this.bgStars = [];
-            for (let i = 0; i < 80; i++) {
+            for (let i = 0; i < 120; i++) {
                 this.bgStars.push({
                     x: randRange(0, CANVAS.WIDTH),
                     y: randRange(0, CANVAS.HEIGHT),
-                    size: randRange(0.5, 2),
-                    twinkleSpeed: randRange(0.01, 0.05),
-                    twinkleOffset: randRange(0, Math.PI * 2)
+                    size: randRange(0.5, 2.5),
+                    twinkleSpeed: randRange(0.015, 0.06),
+                    twinkleOffset: randRange(0, Math.PI * 2),
+                    color: Math.random() > 0.8 ? COLORS.NEON_CYAN : (Math.random() > 0.5 ? COLORS.NEON_PURPLE : '#ffffff')
+                });
+            }
+            // Ambient nebula glow spots
+            this.nebulae = [];
+            for (let i = 0; i < 4; i++) {
+                this.nebulae.push({
+                    x: randRange(100, CANVAS.WIDTH - 100),
+                    y: randRange(50, CANVAS.HEIGHT - 50),
+                    radius: randRange(80, 180),
+                    color: i % 2 === 0 ? COLORS.NEON_PURPLE : COLORS.NEON_CYAN
                 });
             }
         }
         
-        this.ctx.fillStyle = COLORS.TEXT_MUTED;
+        // Draw ambient nebula glows
+        for (const neb of this.nebulae) {
+            const grad = this.ctx.createRadialGradient(neb.x, neb.y, 0, neb.x, neb.y, neb.radius);
+            grad.addColorStop(0, hexToRgba(neb.color, 0.04));
+            grad.addColorStop(1, hexToRgba(neb.color, 0));
+            this.ctx.fillStyle = grad;
+            this.ctx.beginPath();
+            this.ctx.arc(neb.x, neb.y, neb.radius, 0, Math.PI * 2);
+            this.ctx.fill();
+        }
+        
+        // Draw twinkling stars
         for (const star of this.bgStars) {
-            const alpha = 0.3 + Math.sin(this.frameCount * star.twinkleSpeed + star.twinkleOffset) * 0.3;
-            this.ctx.globalAlpha = Math.max(0, alpha);
+            const alpha = 0.4 + Math.sin(this.frameCount * star.twinkleSpeed + star.twinkleOffset) * 0.4;
+            this.ctx.globalAlpha = Math.max(0.05, alpha);
+            this.ctx.fillStyle = star.color;
+            this.ctx.shadowColor = star.color;
+            this.ctx.shadowBlur = star.size * 3;
             this.ctx.beginPath();
             this.ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
             this.ctx.fill();
         }
         this.ctx.globalAlpha = 1;
-        
-        // Debug mode grid overlay for Sprint 1 validation
-        this.ctx.strokeStyle = hexToRgba(COLORS.TEXT_MUTED, 0.1);
-        this.ctx.lineWidth = 1;
-        for(let i=0; i<CANVAS.WIDTH; i+=TILE.SIZE) {
-            this.ctx.beginPath(); this.ctx.moveTo(i, 0); this.ctx.lineTo(i, CANVAS.HEIGHT); this.ctx.stroke();
-        }
-        for(let i=0; i<CANVAS.HEIGHT; i+=TILE.SIZE) {
-            this.ctx.beginPath(); this.ctx.moveTo(0, i); this.ctx.lineTo(CANVAS.WIDTH, i); this.ctx.stroke();
-        }
-        
-        // Render keys pressed to screen for debugging Sprint 1
-        this.ctx.fillStyle = COLORS.TEXT_PRIMARY;
-        this.ctx.font = '16px Inter';
-        let pressedKeys = Object.keys(InputManager.keys).filter(k => InputManager.keys[k]);
-        this.ctx.fillText("Keys pressed: " + pressedKeys.join(', '), 20, 30);
+        this.ctx.shadowBlur = 0;
     }
 
     startLevel(levelIndex) {

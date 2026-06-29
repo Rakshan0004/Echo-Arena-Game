@@ -1,3 +1,3 @@
 const LEVEL_DATA = [
-    { maxRounds: 1 } // Dummy level 0
+    { maxRounds: 3 } // Test level — allows up to 3 rounds (2 echoes + final attempt)
 ];

@@ -109,9 +109,11 @@ class Player {
         if (this.dead && this.deathTimer > 0) {
             ctx.save();
             ctx.globalAlpha = this.deathTimer / 60;
-            // Render basic ghost fading out
             ctx.fillStyle = COLORS.NEON_CYAN;
-            ctx.fillRect(this.x, this.y, this.w, this.h);
+            ctx.shadowColor = COLORS.NEON_CYAN;
+            ctx.shadowBlur = 20;
+            drawRoundedRect(ctx, this.x, this.y, this.w, this.h, 6);
+            ctx.fill();
             ctx.restore();
             return;
         } else if (this.dead) {
@@ -122,47 +124,59 @@ class Player {
         ctx.translate(this.x + this.w / 2, this.y + this.h / 2);
         ctx.scale(this.squashX * this.facing, this.squashY);
         
-        // Motion trail
+        // Motion trail — glowing cyan shapes that fade
         for (let i = 0; i < this.trailPositions.length; i++) {
             const pos = this.trailPositions[i];
-            const alpha = (i / this.trailPositions.length) * 0.15;
+            const alpha = (i / this.trailPositions.length) * 0.2;
             ctx.fillStyle = hexToRgba(COLORS.NEON_CYAN, alpha);
-            const sizeMod = (i / this.trailPositions.length);
-            // Translate back from center to relative pos
-            ctx.fillRect((pos.x - this.x) - (this.w * sizeMod)/2, (pos.y - this.y) - (this.h * sizeMod)/2, this.w * sizeMod, this.h * sizeMod);
+            const sizeMod = 0.3 + (i / this.trailPositions.length) * 0.7;
+            const relX = pos.x - this.x;
+            const relY = pos.y - this.y;
+            drawRoundedRect(ctx, relX - (this.w * sizeMod)/2, relY - (this.h * sizeMod)/2, this.w * sizeMod, this.h * sizeMod, 4);
+            ctx.fill();
         }
         
-        // Outer glow
-        const gradient = ctx.createRadialGradient(0, 0, 0, 0, 0, 50);
-        gradient.addColorStop(0, hexToRgba(COLORS.NEON_CYAN, 0.08));
+        // Outer glow — strong ambient light
+        const gradient = ctx.createRadialGradient(0, 0, 5, 0, 0, 60);
+        gradient.addColorStop(0, hexToRgba(COLORS.NEON_CYAN, 0.15));
+        gradient.addColorStop(0.4, hexToRgba(COLORS.NEON_CYAN, 0.06));
         gradient.addColorStop(1, hexToRgba(COLORS.NEON_CYAN, 0));
         ctx.fillStyle = gradient;
         ctx.beginPath();
-        ctx.arc(0, 0, 50, 0, Math.PI * 2);
+        ctx.arc(0, 0, 60, 0, Math.PI * 2);
         ctx.fill();
         
-        // Body: rounded rectangle, filled with gradient
+        // Body: rounded rectangle with gradient + neon border
         const bodyGrad = ctx.createLinearGradient(0, -18, 0, 18);
-        bodyGrad.addColorStop(0, '#1a2147');
-        bodyGrad.addColorStop(1, '#0a0e27');
+        bodyGrad.addColorStop(0, '#1e2a54');
+        bodyGrad.addColorStop(1, '#0d1230');
         ctx.fillStyle = bodyGrad;
         drawRoundedRect(ctx, -14, -18, 28, 36, 6);
         ctx.fill();
-        ctx.strokeStyle = hexToRgba(COLORS.NEON_CYAN, 0.8);
-        ctx.lineWidth = 2;
-        ctx.stroke();
         
-        // Visor
-        ctx.fillStyle = COLORS.NEON_CYAN;
+        // Neon cyan outline with glow
+        ctx.strokeStyle = COLORS.NEON_CYAN;
         ctx.shadowColor = COLORS.NEON_CYAN;
         ctx.shadowBlur = 12;
+        ctx.lineWidth = 2;
+        drawRoundedRect(ctx, -14, -18, 28, 36, 6);
+        ctx.stroke();
+        ctx.shadowBlur = 0;
+        
+        // Visor — bright glowing eye
+        ctx.fillStyle = COLORS.NEON_CYAN;
+        ctx.shadowColor = COLORS.NEON_CYAN;
+        ctx.shadowBlur = 18;
         drawRoundedRect(ctx, -9, -13, 18, 6, 3);
         ctx.fill();
-        ctx.shadowBlur = 0; // reset
+        // Second pass for extra brightness
+        ctx.shadowBlur = 6;
+        ctx.fill();
+        ctx.shadowBlur = 0;
         
         // Legs
-        ctx.fillStyle = COLORS.PLATFORM;
-        ctx.strokeStyle = hexToRgba(COLORS.NEON_CYAN, 0.3);
+        ctx.fillStyle = '#1a2547';
+        ctx.strokeStyle = hexToRgba(COLORS.NEON_CYAN, 0.5);
         ctx.lineWidth = 1;
         if (this.animState === 'run') {
             const legOffset = Math.sin(frameCount * 0.3) * 4;
@@ -170,6 +184,11 @@ class Player {
             ctx.strokeRect(-6, 14 + legOffset, 5, 6);
             ctx.fillRect(2, 14 - legOffset, 5, 6);
             ctx.strokeRect(2, 14 - legOffset, 5, 6);
+        } else if (this.animState === 'wallSlide') {
+            ctx.fillRect(-6, 13, 5, 7);
+            ctx.strokeRect(-6, 13, 5, 7);
+            ctx.fillRect(2, 15, 5, 7);
+            ctx.strokeRect(2, 15, 5, 7);
         } else {
             ctx.fillRect(-6, 14, 5, 6);
             ctx.strokeRect(-6, 14, 5, 6);
