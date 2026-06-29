@@ -79,20 +79,31 @@
             </div>
             
             <!-- Controls -->
-            <div id="controls-screen" class="screen-overlay" style="display: none;">
-                <div class="glass-panel" style="max-width: 500px; display: flex; flex-direction: column; gap: 20px;">
-                    <h2 style="font-family: 'Orbitron', sans-serif; font-size: 28px; color: #00f5ff; margin: 0; text-align: center;">CONTROLS</h2>
-                    <div style="font-family: 'Inter', sans-serif; color: #e2e8f0; line-height: 2;">
-                        <div><strong>Arrow Keys / WASD</strong> &rarr; Move</div>
-                        <div><strong>Space / W / &uarr;</strong> &rarr; Jump</div>
-                        <div><strong>R</strong> &rarr; End Round (Creates an echo of your moves!)</div>
-                        <div><strong>ESC</strong> &rarr; Pause</div>
+            <div id="controls-screen" class="screen-overlay" style="display: none; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px);">
+                <div class="glass-panel" style="max-width: 600px; width: 90%; display: flex; flex-direction: column; gap: 30px; padding: 40px;">
+                    <h2 style="font-family: 'Orbitron', sans-serif; font-size: 32px; color: #00f5ff; margin: 0; text-align: center; letter-spacing: 2px;">CONTROLS</h2>
+                    
+                    <div style="font-family: 'Inter', sans-serif; color: #e2e8f0; font-size: 18px; line-height: 2.5; display: flex; flex-direction: column; gap: 10px;">
+                        <div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 5px;">
+                            <strong style="color: #00ff88;">Arrow Keys / WASD</strong> <span>Move</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 5px;">
+                            <strong style="color: #00ff88;">Space / W / &uarr;</strong> <span>Jump</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 5px;">
+                            <strong style="color: #00ff88;">R</strong> <span>End Round (Creates an echo!)</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between;">
+                            <strong style="color: #00ff88;">ESC</strong> <span>Pause</span>
+                        </div>
                     </div>
-                    <div style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px; font-family: 'Inter', sans-serif; color: #94a3b8; font-size: 14px; text-align: center;">
-                        Round 1: Play &rarr; End Round<br>
-                        Round 2: Echo replays + You play &rarr; Reach Portal
+                    
+                    <div style="background: rgba(0,0,0,0.4); padding: 20px; border-radius: 12px; font-family: 'Inter', sans-serif; color: #94a3b8; font-size: 15px; text-align: center; line-height: 1.6; border: 1px solid rgba(139, 92, 246, 0.2);">
+                        <span style="color: #e2e8f0;">Round 1:</span> Play &rarr; End Round<br>
+                        <span style="color: #e2e8f0;">Round 2:</span> Echo replays + You play &rarr; Reach Portal
                     </div>
-                    <button id="btn-got-it" class="btn btn-primary" style="margin-top: 10px;">GOT IT!</button>
+                    
+                    <button id="btn-got-it" class="btn btn-primary" style="margin-top: 10px; width: 100%;">GOT IT!</button>
                 </div>
             </div>
         </div>

@@ -26,12 +26,7 @@ class UI {
             this.game.state = STATE.CONTROLS;
         });
         document.getElementById('btn-sound-toggle').addEventListener('click', (e) => {
-            if (this.game.audio) {
-                this.game.audio.enabled = !this.game.audio.enabled;
-                if (this.game.audio.enabled) this.game.audio.masterGain.gain.value = 0.3;
-                else this.game.audio.masterGain.gain.value = 0;
-                e.target.innerText = `♫ SOUND: ${this.game.audio.enabled ? 'ON' : 'OFF'}`;
-            }
+            this.toggleSound();
         });
         
         // Level Select
@@ -76,12 +71,7 @@ class UI {
             this.game.state = STATE.LEVEL_SELECT;
         });
         document.getElementById('btn-pause-sound').addEventListener('click', (e) => {
-            if (this.game.audio) {
-                this.game.audio.enabled = !this.game.audio.enabled;
-                if (this.game.audio.enabled) this.game.audio.masterGain.gain.value = 0.3;
-                else this.game.audio.masterGain.gain.value = 0;
-                e.target.innerText = `♫ SOUND: ${this.game.audio.enabled ? 'ON' : 'OFF'}`;
-            }
+            this.toggleSound();
         });
         
         // Controls
@@ -98,6 +88,22 @@ class UI {
                 if (this.game.audio) this.game.audio.play('switchPress');
             });
         });
+    }
+    
+    toggleSound() {
+        if (this.game.audio) {
+            this.game.audio.enabled = !this.game.audio.enabled;
+            if (this.game.audio.enabled) {
+                this.game.audio.masterGain.gain.value = 0.3;
+                // Try to resume if it was suspended (user clicking sound before play)
+                if (this.game.audio.ctx.state === 'suspended') this.game.audio.ctx.resume();
+            } else {
+                this.game.audio.masterGain.gain.value = 0;
+            }
+            const text = `♫ SOUND: ${this.game.audio.enabled ? 'ON' : 'OFF'}`;
+            document.getElementById('btn-sound-toggle').innerText = text;
+            document.getElementById('btn-pause-sound').innerText = text;
+        }
     }
     
     hideAllScreens() {
