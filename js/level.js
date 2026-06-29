@@ -65,7 +65,8 @@ class Level {
     }
     
     isSolid(c, r) {
-        if (c < 0 || c >= this.cols || r < 0 || r >= this.rows) return true; // Bounds check
+        if (r >= this.rows) return false; // The bottom is a bottomless pit!
+        if (c < 0 || c >= this.cols || r < 0) return true; // Sides and top are solid bounds
         const t = this.grid[r][c];
         if (t === T.PLATFORM || t === T.WALL_JUMP_L || t === T.WALL_JUMP_R) return true;
         // Doors are solid if closed
