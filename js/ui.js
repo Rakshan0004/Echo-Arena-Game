@@ -1,50 +1,211 @@
 class UI {
     constructor(game) {
         this.game = game;
+        
+        // HTML Overlays
+        this.menuScreen = document.getElementById('menu-screen');
+        this.levelSelectScreen = document.getElementById('levelselect-screen');
+        this.roundEndScreen = document.getElementById('roundend-screen');
+        this.levelCompleteScreen = document.getElementById('levelcomplete-screen');
+        this.pauseScreen = document.getElementById('pause-screen');
+        this.controlsScreen = document.getElementById('controls-screen');
+        this.levelGrid = document.getElementById('level-grid');
+        
+        this.bindEvents();
     }
-    updateMenu() {}
-    updateLevelSelect() {}
-    updateRoundEnd() {}
-    updateLevelComplete() {}
-    updatePaused() {}
-    updateControls() {}
+    
+    bindEvents() {
+        // Main Menu
+        document.getElementById('btn-play').addEventListener('click', () => {
+            if (this.game.audio) this.game.audio.resume();
+            this.game.state = STATE.LEVEL_SELECT;
+        });
+        document.getElementById('btn-controls').addEventListener('click', () => {
+            this.game.state = STATE.CONTROLS;
+        });
+        document.getElementById('btn-sound-toggle').addEventListener('click', (e) => {
+            if (this.game.audio) {
+                this.game.audio.enabled = !this.game.audio.enabled;
+                if (this.game.audio.enabled) this.game.audio.masterGain.gain.value = 0.3;
+                else this.game.audio.masterGain.gain.value = 0;
+                e.target.innerText = `♫ SOUND: ${this.game.audio.enabled ? 'ON' : 'OFF'}`;
+            }
+        });
+        
+        // Level Select
+        document.getElementById('btn-back-menu').addEventListener('click', () => {
+            this.game.state = STATE.MENU;
+        });
+        
+        // Round End
+        document.getElementById('btn-next-round').addEventListener('click', () => {
+            this.game.restartRound();
+            this.game.state = STATE.PLAYING;
+        });
+        document.getElementById('btn-retry-round').addEventListener('click', () => {
+            // Drop the last recording
+            if (this.game.recordings.length > 0) this.game.recordings.pop();
+            this.game.currentRound = Math.max(0, this.game.currentRound - 1);
+            this.game.restartRound();
+            this.game.state = STATE.PLAYING;
+        });
+        
+        // Level Complete
+        document.getElementById('btn-next-level').addEventListener('click', () => {
+            let nextLevel = this.game.currentLevel + 1;
+            if (nextLevel < LEVEL_DATA.length) {
+                this.game.startLevel(nextLevel);
+            } else {
+                this.game.state = STATE.MENU;
+            }
+        });
+        document.getElementById('btn-level-select').addEventListener('click', () => {
+            this.game.state = STATE.LEVEL_SELECT;
+        });
+        
+        // Pause Menu
+        document.getElementById('btn-resume').addEventListener('click', () => {
+            this.game.state = STATE.PLAYING;
+        });
+        document.getElementById('btn-restart-level').addEventListener('click', () => {
+            this.game.startLevel(this.game.currentLevel);
+        });
+        document.getElementById('btn-pause-menu').addEventListener('click', () => {
+            this.game.state = STATE.LEVEL_SELECT;
+        });
+        document.getElementById('btn-pause-sound').addEventListener('click', (e) => {
+            if (this.game.audio) {
+                this.game.audio.enabled = !this.game.audio.enabled;
+                if (this.game.audio.enabled) this.game.audio.masterGain.gain.value = 0.3;
+                else this.game.audio.masterGain.gain.value = 0;
+                e.target.innerText = `♫ SOUND: ${this.game.audio.enabled ? 'ON' : 'OFF'}`;
+            }
+        });
+        
+        // Controls
+        document.getElementById('btn-got-it').addEventListener('click', () => {
+            this.game.state = STATE.MENU;
+        });
+        
+        // Add hover sounds to all buttons
+        document.querySelectorAll('.btn').forEach(btn => {
+            btn.addEventListener('mouseenter', () => {
+                // if (this.game.audio) this.game.audio.play('menuHover');
+            });
+            btn.addEventListener('click', () => {
+                if (this.game.audio) this.game.audio.play('switchPress');
+            });
+        });
+    }
+    
+    hideAllScreens() {
+        this.menuScreen.style.display = 'none';
+        this.levelSelectScreen.style.display = 'none';
+        this.roundEndScreen.style.display = 'none';
+        this.levelCompleteScreen.style.display = 'none';
+        this.pauseScreen.style.display = 'none';
+        this.controlsScreen.style.display = 'none';
+    }
+    
+    update() {
+        this.hideAllScreens();
+        
+        switch (this.game.state) {
+            case STATE.MENU:
+                this.menuScreen.style.display = 'flex';
+                break;
+            case STATE.LEVEL_SELECT:
+                this.buildLevelGrid();
+                this.levelSelectScreen.style.display = 'flex';
+                break;
+            case STATE.ROUND_END:
+                document.getElementById('echo-subtitle').innerText = `Echo #${this.game.currentRound} created. They will repeat your moves!`;
+                this.roundEndScreen.style.display = 'flex';
+                break;
+            case STATE.LEVEL_COMPLETE:
+                document.getElementById('stats-rounds').innerText = `Rounds Used: ${this.game.currentRound + 1}`;
+                document.getElementById('stats-stars').innerText = `Par Rounds: ${this.game.levelData.parRounds}`;
+                
+                const starsEarned = (this.game.currentRound + 1 <= this.game.levelData.parRounds) ? 3 : 
+                                  (this.game.currentRound + 1 === this.game.levelData.parRounds + 1) ? 2 : 1;
+                                  
+                document.getElementById('star-1').className = starsEarned >= 1 ? 'star earned' : 'star empty';
+                document.getElementById('star-2').className = starsEarned >= 2 ? 'star earned' : 'star empty';
+                document.getElementById('star-3').className = starsEarned >= 3 ? 'star earned' : 'star empty';
+                
+                this.levelCompleteScreen.style.display = 'flex';
+                break;
+            case STATE.PAUSED:
+                this.pauseScreen.style.display = 'flex';
+                break;
+            case STATE.CONTROLS:
+                this.controlsScreen.style.display = 'flex';
+                break;
+        }
+    }
+    
+    buildLevelGrid() {
+        this.levelGrid.innerHTML = '';
+        for (let i = 0; i < LEVEL_DATA.length; i++) {
+            const level = LEVEL_DATA[i];
+            const unlocked = i === 0 || this.game.levelProgress[i - 1];
+            const completed = this.game.levelProgress[i];
+            const stars = this.game.levelStars[i] || 0;
+            
+            const card = document.createElement('div');
+            card.className = `level-card ${unlocked ? '' : 'locked'} ${completed ? 'completed' : ''}`;
+            
+            let starHtml = '';
+            for (let s = 1; s <= 3; s++) {
+                starHtml += `<span class="star ${s <= stars ? 'earned' : 'empty'}">&#9733;</span>`;
+            }
+            
+            card.innerHTML = `
+                <div style="font-family: 'Orbitron', sans-serif; font-size: 28px; color: #00f5ff; margin-bottom: 5px;">${i + 1}</div>
+                <div style="font-family: 'Inter', sans-serif; font-size: 14px; color: #94a3b8; margin-bottom: 10px;">${level.name}</div>
+                <div>${starHtml}</div>
+                ${!unlocked ? '<div style="position: absolute; top: 10px; right: 10px; color: #475569;">&#128274;</div>' : ''}
+            `;
+            
+            if (unlocked) {
+                card.addEventListener('click', () => {
+                    if (this.game.audio) this.game.audio.play('switchPress');
+                    this.game.startLevel(i);
+                });
+            }
+            
+            this.levelGrid.appendChild(card);
+        }
+    }
     
     renderHUD(ctx) {
-        if (!this.game || this.game.state !== STATE.PLAYING) return;
+        if (!this.game.level) return;
         
         ctx.save();
+        ctx.setTransform(1, 0, 0, 1, 0, 0); // Reset transform for HUD
         
-        // Round counter — top center
+        // Top Left - Level Name
+        ctx.fillStyle = COLORS.TEXT_SECONDARY;
+        ctx.font = '16px Orbitron, sans-serif';
+        ctx.textAlign = 'left';
+        ctx.fillText(`LEVEL ${this.game.currentLevel + 1}: ${this.game.level.name}`, 20, 30);
+        
+        // Top Center - Round count
         ctx.fillStyle = COLORS.NEON_CYAN;
-        ctx.font = '20px Orbitron, sans-serif';
+        ctx.font = '24px Orbitron, sans-serif';
         ctx.textAlign = 'center';
         ctx.shadowColor = COLORS.NEON_CYAN;
         ctx.shadowBlur = 10;
-        ctx.fillText('ROUND ' + this.game.currentRound + ' / ' + this.game.maxRounds, CANVAS.WIDTH / 2, 35);
+        ctx.fillText(`ROUND ${this.game.currentRound + 1} / ${this.game.maxRounds}`, CANVAS.WIDTH / 2, 35);
         ctx.shadowBlur = 0;
         
-        // Echo count — top right
-        ctx.fillStyle = COLORS.NEON_PURPLE;
+        // Top Right - Echoes available
+        ctx.fillStyle = COLORS.TEXT_SECONDARY;
         ctx.font = '16px Orbitron, sans-serif';
         ctx.textAlign = 'right';
-        ctx.shadowColor = COLORS.NEON_PURPLE;
-        ctx.shadowBlur = 8;
-        const echoCount = this.game.echoes.length;
-        ctx.fillText('ECHOES: ' + echoCount, CANVAS.WIDTH - 20, 35);
-        ctx.shadowBlur = 0;
+        ctx.fillText(`ECHOES: ${this.game.echoes.length}`, CANVAS.WIDTH - 20, 30);
         
-        // Controls hint — bottom center (fades out)
-        const hintAlpha = Math.max(0, 1 - (this.game.frameCount - 60) / 180);
-        if (hintAlpha > 0) {
-            ctx.globalAlpha = hintAlpha;
-            ctx.fillStyle = COLORS.TEXT_SECONDARY;
-            ctx.font = '14px Inter, sans-serif';
-            ctx.textAlign = 'center';
-            ctx.fillText('WASD / Arrows to Move  •  Space to Jump  •  R to End Round', CANVAS.WIDTH / 2, CANVAS.HEIGHT - 20);
-            ctx.globalAlpha = 1;
-        }
-        
-        // "R — End Round" prompt — bottom right, pulsing
+        // Bottom Right - End Round prompt
         const pulseAlpha = 0.4 + Math.sin(this.game.frameCount * 0.05) * 0.2;
         ctx.globalAlpha = pulseAlpha;
         ctx.fillStyle = COLORS.NEON_GREEN;
@@ -53,38 +214,24 @@ class UI {
         ctx.fillText('R — END ROUND', CANVAS.WIDTH - 20, CANVAS.HEIGHT - 20);
         ctx.globalAlpha = 1;
         
-        // Level title & hint (fades out)
-        if (this.game.level) {
-            const titleAlpha = Math.max(0, 1 - (this.game.frameCount - 120) / 120);
-            if (titleAlpha > 0) {
-                ctx.globalAlpha = titleAlpha;
-                ctx.textAlign = 'center';
-                
-                // Level Name
-                ctx.fillStyle = COLORS.NEON_PURPLE;
-                ctx.font = 'bold 36px Orbitron, sans-serif';
-                ctx.shadowColor = COLORS.NEON_PURPLE;
-                ctx.shadowBlur = 15;
-                ctx.fillText(`LEVEL ${this.game.currentLevel + 1}: ${this.game.level.name}`, CANVAS.WIDTH / 2, CANVAS.HEIGHT / 3);
-                
-                // Subtitle
-                ctx.fillStyle = COLORS.TEXT_PRIMARY;
-                ctx.font = '18px Inter, sans-serif';
-                ctx.shadowBlur = 0;
-                ctx.fillText(this.game.levelData ? this.game.levelData.subtitle : '', CANVAS.WIDTH / 2, CANVAS.HEIGHT / 3 + 30);
-                
-                // Hint
-                if (this.game.levelData && this.game.levelData.hint) {
-                    ctx.fillStyle = COLORS.NEON_CYAN;
-                    ctx.font = '16px Inter, sans-serif';
-                    ctx.fillText(this.game.levelData.hint, CANVAS.WIDTH / 2, CANVAS.HEIGHT / 3 + 80);
-                }
-                ctx.globalAlpha = 1;
-            }
+        // Level hint fade out
+        const titleAlpha = Math.max(0, 1 - (this.game.frameCount - 120) / 120);
+        if (titleAlpha > 0 && this.game.levelData && this.game.levelData.hint) {
+            ctx.globalAlpha = titleAlpha;
+            ctx.textAlign = 'center';
+            ctx.fillStyle = COLORS.NEON_CYAN;
+            ctx.font = '18px Inter, sans-serif';
+            ctx.shadowColor = COLORS.NEON_CYAN;
+            ctx.shadowBlur = 10;
+            ctx.fillText(this.game.levelData.hint, CANVAS.WIDTH / 2, CANVAS.HEIGHT - 100);
+            ctx.shadowBlur = 0;
+            ctx.globalAlpha = 1;
         }
         
         ctx.restore();
     }
     
-    renderOverlays(ctx) {}
+    renderOverlays(ctx) {
+        // Obsolete: HTML overlays handle this now.
+    }
 }

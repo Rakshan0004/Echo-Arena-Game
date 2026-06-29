@@ -5,6 +5,15 @@ const InputManager = {
 
     init() {
         window.addEventListener('keydown', (e) => {
+            // Pause toggle
+            if (e.key === 'Escape' || e.key === 'Esc') {
+                if (game.state === STATE.PLAYING) {
+                    game.state = STATE.PAUSED;
+                } else if (game.state === STATE.PAUSED) {
+                    game.state = STATE.PLAYING;
+                }
+                return;
+            }
             const gameKeys = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Space', 'KeyW', 'KeyA', 'KeyS', 'KeyD', 'KeyR', 'Escape', 'Enter'];
             if (gameKeys.includes(e.code)) {
                 e.preventDefault();
@@ -144,8 +153,20 @@ class Game {
         }
 
         this.state = STATE.MENU;
-        // Auto-start level 0 for testing Sprint 2
-        this.startLevel(0);
+        
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' || e.key === 'Esc') {
+                if (this.state === STATE.PLAYING) this.state = STATE.PAUSED;
+                else if (this.state === STATE.PAUSED) this.state = STATE.PLAYING;
+            }
+        });
+        
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden && this.state === STATE.PLAYING) {
+                this.state = STATE.PAUSED;
+            }
+        });
+        
         requestAnimationFrame(this.loop.bind(this));
     }
 
@@ -218,20 +239,29 @@ class Game {
         if (levelStatus === 'COMPLETE') {
             this.startTransition(() => this.completeLevel());
         }
+        
+        if (this.player && this.player.y > this.level.pixelHeight + 50) {
+            this.player.die();
+        }
+        
+        if (InputManager.wasPressed('KeyR') && !this.player.dead) {
+            if (this.currentRound + 1 < this.maxRounds) {
+                if (this.audio) this.audio.play('roundEnd');
+                this.recordings.push(this.player.getRecording());
+                this.currentRound++;
+                this.state = STATE.ROUND_END;
+            } else {
+                // If max rounds reached, you can't create more echoes. Just die or alert.
+                if (this.audio) this.audio.play('death');
+                this.player.die();
+            }
+        }
 
         if (this.player && this.player.dead) {
             this.camera.shake(4, 10);
             if (this.player.deathTimer <= 0) {
                 this.restartRound();
             }
-        }
-
-        if (InputManager.wasPressed('Escape')) {
-            this.state = STATE.PAUSED;
-        }
-
-        if (InputManager.wasPressed('KeyR')) {
-            this.endRound();
         }
     }
 
@@ -329,21 +359,6 @@ class Game {
         });
     }
 
-    endRound() {
-        if (this.player) {
-            this.recordings.push(this.player.getRecording());
-        }
-        this.currentRound++;
-        if (this.currentRound > this.maxRounds) {
-            if (this.player) this.player.dead = true; 
-        } else {
-            this.echoes = this.recordings.map((rec, i) => new Echo(rec, this.level.spawnX, this.level.spawnY, i));
-            this.player = new Player(this.level.spawnX, this.level.spawnY);
-            this.level.resetDynamic();
-            this.state = STATE.PLAYING;
-        }
-    }
-
     restartRound() {
         this.echoes = this.recordings.map((rec, i) => new Echo(rec, this.level.spawnX, this.level.spawnY, i));
         this.player = new Player(this.level.spawnX, this.level.spawnY);
@@ -352,14 +367,13 @@ class Game {
 
     completeLevel() {
         this.levelProgress[this.currentLevel] = true;
-        const starsEarned = 3; 
-        this.levelStars[this.currentLevel] = Math.max(this.levelStars[this.currentLevel], starsEarned);
+        const starsEarned = (this.currentRound + 1 <= this.levelData.parRounds) ? 3 : 
+                          (this.currentRound + 1 === this.levelData.parRounds + 1) ? 2 : 1; 
+        this.levelStars[this.currentLevel] = Math.max(this.levelStars[this.currentLevel] || 0, starsEarned);
         this.saveProgress();
         
-        // Auto-advance for testing Sprint 5
-        let nextLevel = this.currentLevel + 1;
-        if (nextLevel >= LEVEL_DATA.length) nextLevel = 0;
-        this.startLevel(nextLevel);
+        if (this.audio) this.audio.play('levelComplete');
+        this.state = STATE.LEVEL_COMPLETE;
     }
 
     startTransition(callback) {
