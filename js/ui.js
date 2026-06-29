@@ -133,11 +133,23 @@ class UI {
                 this.roundEndScreen.style.display = 'flex';
                 break;
             case STATE.LEVEL_COMPLETE:
-                document.getElementById('stats-rounds').innerText = `Rounds Used: ${this.game.currentRound + 1}`;
-                document.getElementById('stats-stars').innerText = `Par Rounds: ${this.game.levelData.parRounds}`;
+                document.getElementById('stats-rounds').innerText = `Rounds Used: ${this.game.currentRound + 1} (Par: ${this.game.levelData.parRounds})`;
                 
-                const starsEarned = (this.game.currentRound + 1 <= this.game.levelData.parRounds) ? 3 : 
-                                  (this.game.currentRound + 1 === this.game.levelData.parRounds + 1) ? 2 : 1;
+                const collectedStars = this.game.level.stars.filter(s => s.collected).length;
+                const totalStars = this.game.level.stars.length;
+                
+                if (totalStars > 0) {
+                    document.getElementById('stats-stars').innerText = `Stars Collected: ${collectedStars}/${totalStars}`;
+                } else {
+                    document.getElementById('stats-stars').innerText = `Stars Collected: None in level`;
+                }
+                
+                let baseStars = (this.game.currentRound + 1 <= this.game.levelData.parRounds) ? 2 : 1;
+                let bonusStar = (totalStars > 0 && collectedStars === totalStars) ? 1 : 0;
+                // If the level has no collectible stars, you just get the 3rd star for beating the par
+                if (totalStars === 0 && this.game.currentRound + 1 <= this.game.levelData.parRounds) bonusStar = 1;
+                
+                const starsEarned = baseStars + bonusStar;
                                   
                 document.getElementById('star-1').className = starsEarned >= 1 ? 'star earned' : 'star empty';
                 document.getElementById('star-2').className = starsEarned >= 2 ? 'star earned' : 'star empty';

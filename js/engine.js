@@ -359,8 +359,16 @@ class Game {
 
     completeLevel() {
         this.levelProgress[this.currentLevel] = true;
-        const starsEarned = (this.currentRound + 1 <= this.levelData.parRounds) ? 3 : 
-                          (this.currentRound + 1 === this.levelData.parRounds + 1) ? 2 : 1; 
+        
+        const collectedStars = this.level.stars.filter(s => s.collected).length;
+        const totalStars = this.level.stars.length;
+        
+        let baseStars = (this.currentRound + 1 <= this.levelData.parRounds) ? 2 : 1;
+        let bonusStar = (totalStars > 0 && collectedStars === totalStars) ? 1 : 0;
+        if (totalStars === 0 && this.currentRound + 1 <= this.levelData.parRounds) bonusStar = 1;
+        
+        const starsEarned = baseStars + bonusStar;
+        
         this.levelStars[this.currentLevel] = Math.max(this.levelStars[this.currentLevel] || 0, starsEarned);
         this.saveProgress();
         
