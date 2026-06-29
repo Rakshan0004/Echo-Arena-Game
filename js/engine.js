@@ -137,10 +137,6 @@ class Game {
         window.addEventListener('resize', () => this.resizeCanvas());
 
         InputManager.init();
-        
-        this.particles = new ParticleSystem();
-        this.audio = new AudioManager();
-        this.ui = new UI(this);
 
         try {
             const progress = localStorage.getItem('echoArena_progress');
