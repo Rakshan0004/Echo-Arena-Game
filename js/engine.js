@@ -185,6 +185,8 @@ class Game {
     }
 
     update() {
+        this.ui.update();
+
         if (this.transition.active) {
             if (this.transition.phase === 'out') {
                 this.transition.alpha += 1 / 20;
@@ -203,18 +205,12 @@ class Game {
             return; 
         }
 
-        this.ui.update();
         if (this.particles) this.particles.update();
 
-        switch (this.state) {
-            case STATE.MENU: this.ui.updateMenu(); break;
-            case STATE.LEVEL_SELECT: this.ui.updateLevelSelect(); break;
-            case STATE.PLAYING: this.updatePlaying(); break;
-            case STATE.ROUND_END: this.ui.updateRoundEnd(); break;
-            case STATE.LEVEL_COMPLETE: this.ui.updateLevelComplete(); break;
-            case STATE.PAUSED: this.ui.updatePaused(); break;
-            case STATE.CONTROLS: this.ui.updateControls(); break;
+        if (this.state === STATE.PLAYING) {
+            this.updatePlaying();
         }
+
         this.particles.update();
     }
 

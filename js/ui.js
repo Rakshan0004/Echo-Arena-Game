@@ -11,6 +11,8 @@ class UI {
         this.controlsScreen = document.getElementById('controls-screen');
         this.levelGrid = document.getElementById('level-grid');
         
+        this.lastState = null;
+        
         this.bindEvents();
     }
     
@@ -115,7 +117,9 @@ class UI {
                 this.menuScreen.style.display = 'flex';
                 break;
             case STATE.LEVEL_SELECT:
-                this.buildLevelGrid();
+                if (this.lastState !== STATE.LEVEL_SELECT) {
+                    this.buildLevelGrid();
+                }
                 this.levelSelectScreen.style.display = 'flex';
                 break;
             case STATE.ROUND_END:
@@ -142,6 +146,8 @@ class UI {
                 this.controlsScreen.style.display = 'flex';
                 break;
         }
+        
+        this.lastState = this.game.state;
     }
     
     buildLevelGrid() {
