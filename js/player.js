@@ -2,8 +2,8 @@ class Player {
     constructor(spawnX, spawnY) {
         this.x = spawnX;
         this.y = spawnY;
-        this.w = 28;
-        this.h = 36;
+        this.w = 32;
+        this.h = 38;
         this.vx = 0;
         this.vy = 0;
         this.onGround = false;
@@ -143,47 +143,47 @@ class Player {
         }
         
         // Outer glow — strong ambient light
-        const gradient = ctx.createRadialGradient(0, 0, 5, 0, 0, 60);
-        gradient.addColorStop(0, hexToRgba(COLORS.NEON_CYAN, 0.15));
-        gradient.addColorStop(0.4, hexToRgba(COLORS.NEON_CYAN, 0.06));
-        gradient.addColorStop(1, hexToRgba(COLORS.NEON_CYAN, 0));
+        const gradient = ctx.createRadialGradient(0, 0, 5, 0, 0, 70);
+        gradient.addColorStop(0, hexToRgba(COLORS.NEON_MAGENTA, 0.25));
+        gradient.addColorStop(0.4, hexToRgba(COLORS.NEON_MAGENTA, 0.1));
+        gradient.addColorStop(1, hexToRgba(COLORS.NEON_MAGENTA, 0));
         ctx.fillStyle = gradient;
         ctx.beginPath();
         ctx.arc(0, 0, 60, 0, Math.PI * 2);
         ctx.fill();
         
         // Body: rounded rectangle with gradient + neon border
-        const bodyGrad = ctx.createLinearGradient(0, -18, 0, 18);
-        bodyGrad.addColorStop(0, '#1e2a54');
-        bodyGrad.addColorStop(1, '#0d1230');
+        const bodyGrad = ctx.createLinearGradient(0, -19, 0, 19);
+        bodyGrad.addColorStop(0, '#4a0033');
+        bodyGrad.addColorStop(1, '#1a0011');
         ctx.fillStyle = bodyGrad;
-        drawRoundedRect(ctx, -14, -18, 28, 36, 6);
+        drawRoundedRect(ctx, -16, -19, 32, 38, 8);
         ctx.fill();
         
-        // Neon cyan outline with glow
-        ctx.strokeStyle = COLORS.NEON_CYAN;
-        ctx.shadowColor = COLORS.NEON_CYAN;
-        ctx.shadowBlur = 12;
-        ctx.lineWidth = 2;
-        drawRoundedRect(ctx, -14, -18, 28, 36, 6);
+        // Neon magenta outline with glow
+        ctx.strokeStyle = COLORS.NEON_MAGENTA;
+        ctx.shadowColor = COLORS.NEON_MAGENTA;
+        ctx.shadowBlur = 15;
+        ctx.lineWidth = 2.5;
+        drawRoundedRect(ctx, -16, -19, 32, 38, 8);
         ctx.stroke();
         ctx.shadowBlur = 0;
         
         // Visor — bright glowing eye
-        ctx.fillStyle = COLORS.NEON_CYAN;
-        ctx.shadowColor = COLORS.NEON_CYAN;
-        ctx.shadowBlur = 18;
-        drawRoundedRect(ctx, -9, -13, 18, 6, 3);
+        ctx.fillStyle = '#ffffff';
+        ctx.shadowColor = COLORS.NEON_MAGENTA;
+        ctx.shadowBlur = 20;
+        drawRoundedRect(ctx, -10, -14, 20, 8, 4);
         ctx.fill();
         // Second pass for extra brightness
-        ctx.shadowBlur = 6;
+        ctx.shadowBlur = 8;
         ctx.fill();
         ctx.shadowBlur = 0;
         
         // Legs
-        ctx.fillStyle = '#1a2547';
-        ctx.strokeStyle = hexToRgba(COLORS.NEON_CYAN, 0.5);
-        ctx.lineWidth = 1;
+        ctx.fillStyle = '#1a0011';
+        ctx.strokeStyle = hexToRgba(COLORS.NEON_MAGENTA, 0.6);
+        ctx.lineWidth = 1.5;
         if (this.animState === 'run') {
             const legOffset = Math.sin(frameCount * 0.3) * 4;
             ctx.fillRect(-6, 14 + legOffset, 5, 6);

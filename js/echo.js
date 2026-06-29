@@ -17,8 +17,8 @@ class Echo {
         // Physics state (same shape as Player for simulatePhysics)
         this.x = spawnX;
         this.y = spawnY;
-        this.w = 28;
-        this.h = 36;
+        this.w = 32;
+        this.h = 38;
         this.vx = 0;
         this.vy = 0;
         this.onGround = false;
@@ -147,11 +147,11 @@ class Echo {
         
         // Body — semi-transparent with glow
         ctx.globalAlpha = 0.6;
-        const bodyGrad = ctx.createLinearGradient(0, -18, 0, 18);
+        const bodyGrad = ctx.createLinearGradient(0, -19, 0, 19);
         bodyGrad.addColorStop(0, hexToRgba(color, 0.4));
         bodyGrad.addColorStop(1, hexToRgba(color, 0.15));
         ctx.fillStyle = bodyGrad;
-        drawRoundedRect(ctx, -14, -18, 28, 36, 6);
+        drawRoundedRect(ctx, -16, -19, 32, 38, 8);
         ctx.fill();
         
         // Neon outline — the ghost's signature look
@@ -160,7 +160,7 @@ class Echo {
         ctx.shadowColor = color;
         ctx.shadowBlur = 15;
         ctx.lineWidth = 2;
-        drawRoundedRect(ctx, -14, -18, 28, 36, 6);
+        drawRoundedRect(ctx, -16, -19, 32, 38, 8);
         ctx.stroke();
         ctx.shadowBlur = 0;
         
@@ -169,7 +169,7 @@ class Echo {
         ctx.fillStyle = color;
         ctx.shadowColor = color;
         ctx.shadowBlur = 10;
-        drawRoundedRect(ctx, -9, -13, 18, 6, 3);
+        drawRoundedRect(ctx, -10, -14, 20, 8, 4);
         ctx.fill();
         ctx.shadowBlur = 0;
         

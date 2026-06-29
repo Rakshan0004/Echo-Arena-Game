@@ -252,7 +252,11 @@ class Game {
                 if (this.audio) this.audio.play('roundEnd');
                 this.recordings.push(this.player.getRecording());
                 this.currentRound++;
-                this.state = STATE.ROUND_END;
+                
+                // Seamlessly restart with a quick transition instead of a confusing menu
+                this.startTransition(() => {
+                    this.restartRound();
+                });
             } else {
                 // If max rounds reached, you can't create more echoes. Just die or alert.
                 if (this.audio) this.audio.play('death');
