@@ -108,6 +108,25 @@ class ParticleSystem {
                     gravity: -0.02, friction: 0.99, shape: 'circle'
                 });
                 break;
+                
+            case 'celebration':
+                // Burst of colorful confetti from a point
+                const celebColors = [COLORS.NEON_YELLOW, COLORS.NEON_CYAN, COLORS.NEON_MAGENTA, COLORS.NEON_GREEN, COLORS.NEON_PURPLE, '#ffffff'];
+                for (let i = 0; i < 15; i++) {
+                    const angle = randRange(-Math.PI * 0.85, -Math.PI * 0.15); // mostly upward
+                    const speed = randRange(4, 12);
+                    this.particles.push({
+                        x: x, y: y,
+                        vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed,
+                        life: randRange(60, 120), maxLife: 120,
+                        size: randRange(3, 7), color: celebColors[Math.floor(Math.random() * celebColors.length)],
+                        gravity: 0.12, friction: 0.98,
+                        shape: Math.random() > 0.5 ? 'square' : 'star',
+                        rotation: randRange(0, Math.PI * 2),
+                        rotSpeed: randRange(-0.15, 0.15)
+                    });
+                }
+                break;
         }
     }
     

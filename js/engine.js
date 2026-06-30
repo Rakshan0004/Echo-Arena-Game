@@ -129,6 +129,7 @@ class Game {
         this.ui = new UI(this);
         
         this.particles = new ParticleSystem();
+        this.celebrationParticles = new ParticleSystem();
         this.audio = new AudioManager();
         this.camera = new Camera();
         this.frameCount = 0;
@@ -136,6 +137,7 @@ class Game {
         this.levelStars = [];
         this.transition = { active: false, alpha: 0, callback: null, phase: 'none' };
         this.bgStars = null;
+        this.celebrationTimer = 0;
     }
 
     init() {
@@ -147,13 +149,13 @@ class Game {
         InputManager.init();
 
         try {
-            const progress = localStorage.getItem('echoArena_progress');
-            this.levelProgress = progress ? JSON.parse(progress) : Array(8).fill(false);
+            // All levels unlocked
+            this.levelProgress = Array(10).fill(true);
             const stars = localStorage.getItem('echoArena_stars');
-            this.levelStars = stars ? JSON.parse(stars) : Array(8).fill(0);
+            this.levelStars = stars ? JSON.parse(stars) : Array(10).fill(0);
         } catch (e) {
-            this.levelProgress = Array(8).fill(false);
-            this.levelStars = Array(8).fill(0);
+            this.levelProgress = Array(10).fill(true);
+            this.levelStars = Array(10).fill(0);
         }
 
         this.state = STATE.MENU;
@@ -181,6 +183,10 @@ class Game {
         this.canvas.height = CANVAS.HEIGHT;
         this.canvas.style.width = CANVAS.WIDTH + 'px';
         this.canvas.style.height = CANVAS.HEIGHT + 'px';
+        
+        // Force regeneration of background stars to cover the new screen size
+        this.bgStars = null;
+        this.nebulae = null;
     }
 
     loop(timestamp) {
@@ -217,6 +223,18 @@ class Game {
         if (this.state === STATE.PLAYING) {
             this.updatePlaying();
         }
+
+        // Celebration confetti during level complete
+        if (this.state === STATE.LEVEL_COMPLETE && this.celebrationTimer > 0) {
+            this.celebrationTimer--;
+            if (this.celebrationTimer % 6 === 0) {
+                // Emit confetti from random positions along the top half of the screen
+                const x = randRange(50, CANVAS.WIDTH - 50);
+                const y = randRange(CANVAS.HEIGHT * 0.3, CANVAS.HEIGHT * 0.7);
+                this.celebrationParticles.emit('celebration', x, y);
+            }
+        }
+        this.celebrationParticles.update();
 
         this.particles.update();
     }
@@ -285,7 +303,7 @@ class Game {
 
         if (this.state === STATE.PLAYING || this.state === STATE.ROUND_END || this.state === STATE.PAUSED) {
             this.camera.applyTransform(this.ctx);
-            if (this.level) this.level.render(this.ctx, this.frameCount);
+            if (this.level) this.level.render(this.ctx, this.frameCount, this.camera);
             for (const echo of this.echoes) {
                 echo.render(this.ctx, this.frameCount);
             }
@@ -297,6 +315,13 @@ class Game {
         }
 
         this.ui.renderOverlays(this.ctx);
+
+        // Render celebration confetti in screen-space (on top of everything)
+        if (this.state === STATE.LEVEL_COMPLETE || this.celebrationParticles.particles.length > 0) {
+            this.ctx.setTransform(1, 0, 0, 1, 0, 0);
+            this.celebrationParticles.render(this.ctx);
+        }
+
         this.renderTransition(this.ctx);
     }
     
@@ -388,6 +413,16 @@ class Game {
         this.saveProgress();
         
         if (this.audio) this.audio.play('levelComplete');
+        
+        // Start celebration confetti!
+        this.celebrationTimer = 180; // ~3 seconds of confetti bursts
+        // Initial big burst from multiple positions
+        for (let i = 0; i < 5; i++) {
+            const x = randRange(100, CANVAS.WIDTH - 100);
+            const y = randRange(CANVAS.HEIGHT * 0.3, CANVAS.HEIGHT * 0.6);
+            this.celebrationParticles.emit('celebration', x, y);
+        }
+        
         this.state = STATE.LEVEL_COMPLETE;
     }
 

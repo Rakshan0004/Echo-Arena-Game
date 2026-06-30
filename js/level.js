@@ -246,10 +246,28 @@ class Level {
         return null;
     }
     
-    render(ctx, frameCount) {
+    render(ctx, frameCount, camera) {
+        let startCol = 0, endCol = this.cols, startRow = 0, endRow = this.rows;
+        let viewX = 0, viewY = 0, viewW = this.pixelWidth, viewH = this.pixelHeight;
+        
+        if (camera && typeof CANVAS !== 'undefined') {
+            startCol = Math.max(0, Math.floor(camera.x / TILE.SIZE) - 1);
+            endCol = Math.min(this.cols, Math.ceil((camera.x + CANVAS.WIDTH) / TILE.SIZE) + 1);
+            startRow = Math.max(0, Math.floor(camera.y / TILE.SIZE) - 1);
+            endRow = Math.min(this.rows, Math.ceil((camera.y + CANVAS.HEIGHT) / TILE.SIZE) + 1);
+            viewX = camera.x - TILE.SIZE;
+            viewY = camera.y - TILE.SIZE;
+            viewW = CANVAS.WIDTH + TILE.SIZE * 2;
+            viewH = CANVAS.HEIGHT + TILE.SIZE * 2;
+        }
+
+        const inView = (x, y, w, h) => {
+            return x + w >= viewX && x <= viewX + viewW && y + h >= viewY && y <= viewY + viewH;
+        };
+
         // Draw tiles
-        for (let r = 0; r < this.rows; r++) {
-            for (let c = 0; c < this.cols; c++) {
+        for (let r = startRow; r < endRow; r++) {
+            for (let c = startCol; c < endCol; c++) {
                 const t = this.grid[r][c];
                 if (t === T.EMPTY) continue;
                 
@@ -290,6 +308,7 @@ class Level {
         
         // Moving platforms
         for (const mp of this.movingPlatforms) {
+            if (!inView(mp.x, mp.y, mp.w, mp.h)) continue;
             ctx.fillStyle = COLORS.PLATFORM;
             ctx.fillRect(mp.x, mp.y, mp.w, mp.h);
             ctx.fillStyle = COLORS.NEON_CYAN;
@@ -298,6 +317,7 @@ class Level {
         
         // Spikes
         for (const spike of this.spikes) {
+            if (!inView(spike.x, spike.y, TILE.SIZE, TILE.SIZE)) continue;
             ctx.fillStyle = COLORS.NEON_MAGENTA;
             ctx.shadowColor = COLORS.NEON_MAGENTA;
             ctx.shadowBlur = 8;
@@ -313,6 +333,7 @@ class Level {
         
         // Switches
         for (const [key, sw] of Object.entries(this.switches)) {
+            if (!inView(sw.x, sw.y, TILE.SIZE, TILE.SIZE)) continue;
             const plateY = sw.y + TILE.SIZE - (sw.pressed ? 4 : 8);
             ctx.fillStyle = sw.pressed ? COLORS.NEON_GREEN : COLORS.TEXT_MUTED;
             if (sw.pressed) {
@@ -333,6 +354,7 @@ class Level {
         // Doors
         for (const [key, doorArray] of Object.entries(this.doors)) {
             for (const door of doorArray) {
+                if (!inView(door.x, door.y, TILE.SIZE, TILE.SIZE)) continue;
                 if (!door.open) {
                     ctx.fillStyle = COLORS.NEON_ORANGE;
                     ctx.globalAlpha = 0.7;
@@ -361,6 +383,10 @@ class Level {
         
         // Lasers
         for (const laser of this.lasers) {
+            const laserW = laser.direction === 'right' ? TILE.SIZE + laser.length : TILE.SIZE;
+            const laserH = laser.direction === 'down' ? TILE.SIZE + laser.length : TILE.SIZE;
+            if (!inView(laser.srcX, laser.srcY, laserW, laserH)) continue;
+            
             ctx.fillStyle = COLORS.NEON_MAGENTA;
             ctx.shadowColor = COLORS.NEON_MAGENTA;
             ctx.shadowBlur = 10;
@@ -390,6 +416,7 @@ class Level {
         
         // Stars
         for (const star of this.stars) {
+            if (!inView(star.x, star.y, TILE.SIZE, TILE.SIZE)) continue;
             if (!star.collected) {
                 ctx.save();
                 ctx.translate(star.x + TILE.SIZE/2, star.y + TILE.SIZE/2);
