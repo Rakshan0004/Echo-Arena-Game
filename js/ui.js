@@ -82,6 +82,9 @@ class UI {
         document.getElementById('btn-pause-menu').addEventListener('click', () => {
             this.game.state = STATE.LEVEL_SELECT;
         });
+        document.getElementById('btn-pause-home').addEventListener('click', () => {
+            this.game.state = STATE.MENU;
+        });
         document.getElementById('btn-pause-sound').addEventListener('click', (e) => {
             this.toggleSound();
         });
