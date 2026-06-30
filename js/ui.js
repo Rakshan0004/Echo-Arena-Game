@@ -40,6 +40,9 @@ class UI {
         document.getElementById('btn-sound-toggle').addEventListener('click', (e) => {
             this.toggleSound();
         });
+        document.getElementById('btn-music-toggle').addEventListener('click', (e) => {
+            this.toggleMusic();
+        });
         
         // Level Select
         document.getElementById('btn-back-menu').addEventListener('click', () => {
@@ -88,6 +91,9 @@ class UI {
         document.getElementById('btn-pause-sound').addEventListener('click', (e) => {
             this.toggleSound();
         });
+        document.getElementById('btn-pause-music').addEventListener('click', (e) => {
+            this.toggleMusic();
+        });
         
         // Controls
         document.getElementById('btn-got-it').addEventListener('click', () => {
@@ -129,6 +135,15 @@ class UI {
             const text = `♫ SOUND: ${this.game.audio.enabled ? 'ON' : 'OFF'}`;
             document.getElementById('btn-sound-toggle').innerText = text;
             document.getElementById('btn-pause-sound').innerText = text;
+        }
+    }
+    
+    toggleMusic() {
+        if (this.game.music) {
+            const nextTrackName = this.game.music.nextTrack();
+            const text = `♪ MUSIC: ${nextTrackName === 'None' ? 'OFF' : nextTrackName.toUpperCase()}`;
+            document.getElementById('btn-music-toggle').innerText = text;
+            document.getElementById('btn-pause-music').innerText = text;
         }
     }
     
