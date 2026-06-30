@@ -20,7 +20,7 @@ class MusicManager {
         
         this.currentTrackIndex = 0; // 0 = None
         this.audio = null;
-        this.volume = 0.25;
+        this.volume = 0.8;
         this.fadeInterval = null;
         this.isPlaying = false;
         this.isLoading = false;

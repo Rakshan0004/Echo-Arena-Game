@@ -324,8 +324,5 @@ html, body {
     border-radius: 50%;
     background: #fff;
     cursor: pointer;
-    opacity: 0;
-    transition: opacity 0.2s;
 }
-.spotify-slider:hover::-webkit-slider-thumb { opacity: 1; }
 .spotify-slider:hover { background: #1ed760; }
