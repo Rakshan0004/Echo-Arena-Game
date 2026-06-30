@@ -14,31 +14,30 @@
     <div id="game-container">
             <!-- Audio Settings Panel -->
             <div id="audio-settings-screen" class="screen-overlay" style="display: none; background: rgba(10, 14, 39, 0.95); backdrop-filter: blur(8px); z-index: 20;">
-                <div class="industrial-panel">
+                <div class="glass-audio-panel">
                     <h2 class="panel-title">MUSIC</h2>
                     
                     <div class="setting-group">
                         <label>SFX SYSTEM</label>
-                        <button id="btn-sfx-toggle" class="btn btn-primary" style="width: 100%; padding: 10px;">ENABLED</button>
+                        <button id="btn-sfx-toggle" class="btn btn-primary" style="width: 100%;">ENABLED</button>
                     </div>
                     
                     <div class="setting-group">
                         <label>MUSIC TRACKS</label>
                         <div class="track-list" id="track-list-container">
                             <button class="track-btn active" data-track="0">SYS.OFF</button>
-                            <button class="track-btn" data-track="1">NEON DRIVE</button>
-                            <button class="track-btn" data-track="2">CYBER PULSE</button>
-                            <button class="track-btn" data-track="3">ECHO DRIFT</button>
-                            <button class="track-btn" data-track="4">VOID RUNNER</button>
+                            <button class="track-btn" data-track="1">ALAN WALKER - FADED</button>
+                            <button class="track-btn" data-track="2">ALAN WALKER - SPECTRE</button>
+                            <button class="track-btn" data-track="3">CARTOON - ON & ON</button>
                         </div>
                     </div>
 
                     <div class="setting-group">
                         <label>BGM GAIN</label>
-                        <input type="range" id="bgm-volume" class="industrial-slider" min="0" max="1" step="0.05" value="0.25">
+                        <input type="range" id="bgm-volume" class="glass-slider" min="0" max="1" step="0.05" value="0.25">
                     </div>
 
-                    <button id="btn-audio-back" class="btn" style="width: 100%; padding: 10px; margin-top: 10px;">RETURN</button>
+                    <button id="btn-audio-back" class="btn" style="width: 100%; margin-top: 15px;">RETURN</button>
                 </div>
             </div>
 
