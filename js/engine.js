@@ -386,6 +386,8 @@ class Game {
                     color: Math.random() > 0.8 ? COLORS.NEON_CYAN : (Math.random() > 0.5 ? COLORS.NEON_PURPLE : '#ffffff')
                 });
             }
+        }
+        
         // Draw twinkling stars
         for (const star of this.bgStars) {
             const alpha = 0.4 + Math.sin(this.frameCount * star.twinkleSpeed + star.twinkleOffset) * 0.4;
