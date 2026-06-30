@@ -14,30 +14,59 @@
     <div id="game-container">
             <!-- Audio Settings Panel -->
             <div id="audio-settings-screen" class="screen-overlay" style="display: none; background: rgba(10, 14, 39, 0.95); backdrop-filter: blur(8px); z-index: 20;">
-                <div class="glass-audio-panel">
-                    <h2 class="panel-title">MUSIC</h2>
-                    
-                    <div class="setting-group">
-                        <label>SFX SYSTEM</label>
-                        <button id="btn-sfx-toggle" class="btn btn-primary" style="width: 100%;">ENABLED</button>
+                <div class="spotify-panel">
+                    <div class="spotify-header">
+                        <h2>✨ VIBE STATION</h2>
+                        <button id="btn-audio-back" class="close-btn">&times;</button>
                     </div>
                     
-                    <div class="setting-group">
-                        <label>MUSIC TRACKS</label>
-                        <div class="track-list" id="track-list-container">
-                            <button class="track-btn active" data-track="0">SYS.OFF</button>
-                            <button class="track-btn" data-track="1">ALAN WALKER - FADED</button>
-                            <button class="track-btn" data-track="2">ALAN WALKER - SPECTRE</button>
-                            <button class="track-btn" data-track="3">CARTOON - ON & ON</button>
+                    <div class="setting-group" style="margin-bottom: 20px;">
+                        <label>SFX SYSTEM</label>
+                        <button id="btn-sfx-toggle" class="btn btn-primary" style="width: 100%; padding: 8px;">ENABLED</button>
+                    </div>
+                    
+                    <div class="track-list" id="track-list-container">
+                        <div class="spotify-track" data-track="1">
+                            <div class="track-number"><span class="num">1</span><span class="play-icon">▶</span></div>
+                            <div class="track-info">
+                                <div class="track-name">Faded</div>
+                                <div class="track-artist">Alan Walker</div>
+                            </div>
+                            <div class="track-status"></div>
+                        </div>
+                        <div class="spotify-track" data-track="2">
+                            <div class="track-number"><span class="num">2</span><span class="play-icon">▶</span></div>
+                            <div class="track-info">
+                                <div class="track-name">Spectre</div>
+                                <div class="track-artist">Alan Walker</div>
+                            </div>
+                            <div class="track-status"></div>
+                        </div>
+                        <div class="spotify-track" data-track="3">
+                            <div class="track-number"><span class="num">3</span><span class="play-icon">▶</span></div>
+                            <div class="track-info">
+                                <div class="track-name">On & On</div>
+                                <div class="track-artist">Cartoon (feat. Daniel Levi)</div>
+                            </div>
+                            <div class="track-status"></div>
                         </div>
                     </div>
 
-                    <div class="setting-group">
-                        <label>BGM GAIN</label>
-                        <input type="range" id="bgm-volume" class="glass-slider" min="0" max="1" step="0.05" value="0.25">
+                    <div class="now-playing-bar">
+                        <div class="now-playing-info">
+                            <div id="np-title" class="np-title">No Track Selected</div>
+                            <div id="np-artist" class="np-artist">Music Off</div>
+                        </div>
+                        <div class="np-controls">
+                            <button id="btn-prev-track" class="ctrl-btn">⏮</button>
+                            <button id="btn-play-pause" class="play-btn">▶</button>
+                            <button id="btn-next-track" class="ctrl-btn">⏭</button>
+                        </div>
+                        <div class="volume-container">
+                            <span style="color: #b3b3b3; font-size: 12px; margin-right: 8px;">🔊</span>
+                            <input type="range" id="bgm-volume" class="spotify-slider" min="0" max="1" step="0.05" value="0.25">
+                        </div>
                     </div>
-
-                    <button id="btn-audio-back" class="btn" style="width: 100%; margin-top: 15px;">RETURN</button>
                 </div>
             </div>
 
@@ -51,7 +80,7 @@
                 <div style="display: flex; flex-direction: column; gap: 16px; width: 240px;">
                     <button id="btn-play" class="btn btn-primary">▶ PLAY</button>
                     <button id="btn-controls" class="btn">◧ CONTROLS</button>
-                    <button id="btn-audio-settings" class="btn">⚙ AUDIO SETTINGS</button>
+                    <button id="btn-audio-settings" class="btn">✨ VIBE</button>
                 </div>
                 <div style="position: absolute; bottom: 20px; text-align: center;">
                     <p style="font-family: 'Inter', sans-serif; font-size: 12px; color: #475569; margin-bottom: 8px;">ARROW KEYS / WASD TO MOVE &bull; SPACE TO JUMP &bull; R TO END ROUND &bull; G TO PLACE GHOST</p>
@@ -108,7 +137,7 @@
                     <button id="btn-restart-level" class="btn">RESTART LEVEL</button>
                     <button id="btn-pause-menu" class="btn">LEVEL SELECT</button>
                     <button id="btn-pause-home" class="btn">HOME</button>
-                    <button id="btn-pause-audio" class="btn">⚙ AUDIO SETTINGS</button>
+                    <button id="btn-pause-audio" class="btn">✨ VIBE</button>
                 </div>
             </div>
             

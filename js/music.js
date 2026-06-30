@@ -21,12 +21,24 @@ class MusicManager {
         this.volume = 0.25;
         this.fadeInterval = null;
         this.isPlaying = false;
+        this.isLoading = false;
+        this.onStateChange = null; // Callback for UI updates
     }
     
     /**
      * Play a track by index. Index 0 = None (stops music).
      */
     play(trackIndex) {
+        // If same track is playing, don't restart, just ensure it's playing
+        if (this.currentTrackIndex === trackIndex && this.audio) {
+            if (this.audio.paused) {
+                this.audio.play();
+                this.isPlaying = true;
+                if (this.onStateChange) this.onStateChange();
+            }
+            return;
+        }
+
         // Stop current track
         this.stop();
         
@@ -35,20 +47,52 @@ class MusicManager {
         
         if (!track || !track.url) {
             this.isPlaying = false;
+            this.isLoading = false;
+            if (this.onStateChange) this.onStateChange();
             return;
         }
+        
+        this.isLoading = true;
+        if (this.onStateChange) this.onStateChange();
         
         this.audio = new Audio(track.url);
         this.audio.loop = true;
         this.audio.volume = 0; // Start silent for fade-in
         
-        this.audio.play().then(() => {
+        // Listeners for UI state
+        this.audio.addEventListener('playing', () => {
+            this.isLoading = false;
             this.isPlaying = true;
+            if (this.onStateChange) this.onStateChange();
+        });
+        
+        this.audio.addEventListener('waiting', () => {
+            this.isLoading = true;
+            if (this.onStateChange) this.onStateChange();
+        });
+        
+        this.audio.addEventListener('pause', () => {
+            this.isPlaying = false;
+            if (this.onStateChange) this.onStateChange();
+        });
+
+        this.audio.play().then(() => {
             this.fadeIn();
         }).catch(err => {
             console.warn('Music playback failed:', err);
             this.isPlaying = false;
+            this.isLoading = false;
+            if (this.onStateChange) this.onStateChange();
         });
+    }
+
+    togglePause() {
+        if (!this.audio || this.currentTrackIndex === 0) return;
+        if (this.audio.paused) {
+            this.audio.play();
+        } else {
+            this.audio.pause();
+        }
     }
     
     /**

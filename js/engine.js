@@ -144,6 +144,7 @@ class Game {
         this.celebrationParticles = new ParticleSystem();
         this.audio = new AudioManager();
         this.music = new MusicManager();
+        this.music.onStateChange = () => this.ui.updateAudioUI();
         this.camera = new Camera();
         this.frameCount = 0;
         this.levelProgress = [];

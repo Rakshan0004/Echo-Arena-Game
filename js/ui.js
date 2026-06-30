@@ -51,14 +51,38 @@ class UI {
         document.getElementById('btn-sfx-toggle').addEventListener('click', () => {
             this.toggleSound();
         });
-        document.querySelectorAll('.track-btn').forEach(btn => {
+        document.querySelectorAll('.spotify-track').forEach(btn => {
             btn.addEventListener('click', (e) => {
-                const trackIdx = parseInt(e.target.dataset.track);
+                const trackIdx = parseInt(e.currentTarget.dataset.track);
                 if (this.game.music) {
-                    this.game.music.play(trackIdx);
-                    this.updateAudioUI();
+                    if (this.game.music.currentTrackIndex === trackIdx) {
+                        this.game.music.togglePause();
+                    } else {
+                        this.game.music.play(trackIdx);
+                    }
                 }
             });
+        });
+        document.getElementById('btn-play-pause').addEventListener('click', () => {
+            if (this.game.music) {
+                if (this.game.music.currentTrackIndex === 0) {
+                    this.game.music.play(1); // Play first track if nothing selected
+                } else {
+                    this.game.music.togglePause();
+                }
+            }
+        });
+        document.getElementById('btn-prev-track').addEventListener('click', () => {
+            if (this.game.music && this.game.music.currentTrackIndex > 1) {
+                this.game.music.play(this.game.music.currentTrackIndex - 1);
+            }
+        });
+        document.getElementById('btn-next-track').addEventListener('click', () => {
+            if (this.game.music && this.game.music.currentTrackIndex > 0 && this.game.music.currentTrackIndex < this.game.music.tracks.length - 1) {
+                this.game.music.play(this.game.music.currentTrackIndex + 1);
+            } else if (this.game.music && this.game.music.currentTrackIndex === 0) {
+                this.game.music.play(1);
+            }
         });
         document.getElementById('bgm-volume').addEventListener('input', (e) => {
             if (this.game.music) {
@@ -165,14 +189,45 @@ class UI {
             btn.style.padding = '10px';
         }
         if (this.game.music) {
-            document.querySelectorAll('.track-btn').forEach(btn => {
+            const currentIdx = this.game.music.currentTrackIndex;
+            const isPlaying = this.game.music.isPlaying;
+            const isLoading = this.game.music.isLoading;
+            
+            document.querySelectorAll('.spotify-track').forEach(btn => {
                 const idx = parseInt(btn.dataset.track);
-                if (idx === this.game.music.currentTrackIndex) {
+                const statusDiv = btn.querySelector('.track-status');
+                
+                if (idx === currentIdx) {
                     btn.classList.add('active');
+                    if (isLoading) {
+                        statusDiv.innerHTML = '<div class="loading-spinner"></div>';
+                    } else if (isPlaying) {
+                        statusDiv.innerHTML = '<span style="color:#1ed760; font-size:12px;">🔊</span>';
+                    } else {
+                        statusDiv.innerHTML = '';
+                    }
                 } else {
                     btn.classList.remove('active');
+                    statusDiv.innerHTML = '';
                 }
             });
+            
+            const npTitle = document.getElementById('np-title');
+            const npArtist = document.getElementById('np-artist');
+            const playBtn = document.getElementById('btn-play-pause');
+            
+            if (currentIdx === 0) {
+                npTitle.innerText = 'No Track Selected';
+                npArtist.innerText = 'Music Off';
+                playBtn.innerText = '▶';
+            } else {
+                const track = this.game.music.tracks[currentIdx];
+                const parts = track.name.split(' - ');
+                npTitle.innerText = parts[1] || track.name;
+                npArtist.innerText = parts[0] || 'Unknown Artist';
+                playBtn.innerText = (isPlaying || isLoading) ? '||' : '▶';
+            }
+            
             const slider = document.getElementById('bgm-volume');
             if (slider && document.activeElement !== slider) {
                 slider.value = this.game.music.volume;
