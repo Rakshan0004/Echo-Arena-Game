@@ -70,6 +70,7 @@ const STATE = {
     LEVEL_COMPLETE: 'LEVEL_COMPLETE',
     PAUSED:         'PAUSED',
     CONTROLS:       'CONTROLS',
+    AUDIO_SETTINGS: 'AUDIO_SETTINGS',
 };
 
 const T = {

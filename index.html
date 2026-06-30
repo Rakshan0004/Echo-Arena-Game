@@ -12,7 +12,38 @@
 </head>
 <body>
     <div id="game-container">
-        <canvas id="game-canvas"></canvas>
+            <!-- Audio Settings Panel -->
+            <div id="audio-settings-screen" class="screen-overlay" style="display: none; background: rgba(10, 14, 39, 0.95); backdrop-filter: blur(8px); z-index: 20;">
+                <div class="industrial-panel">
+                    <h2 class="panel-title">AUDIO INTERFACE</h2>
+                    
+                    <div class="setting-group">
+                        <label>SFX SYSTEM</label>
+                        <button id="btn-sfx-toggle" class="btn btn-primary" style="width: 100%; padding: 10px;">ENABLED</button>
+                    </div>
+                    
+                    <div class="setting-group">
+                        <label>BGM TRACKLINK</label>
+                        <div class="track-list" id="track-list-container">
+                            <button class="track-btn active" data-track="0">SYS.OFF</button>
+                            <button class="track-btn" data-track="1">NEON DRIVE</button>
+                            <button class="track-btn" data-track="2">CYBER PULSE</button>
+                            <button class="track-btn" data-track="3">ECHO DRIFT</button>
+                            <button class="track-btn" data-track="4">VOID RUNNER</button>
+                        </div>
+                    </div>
+
+                    <div class="setting-group">
+                        <label>BGM GAIN</label>
+                        <input type="range" id="bgm-volume" class="industrial-slider" min="0" max="1" step="0.05" value="0.25">
+                    </div>
+
+                    <button id="btn-audio-back" class="btn" style="width: 100%; padding: 10px; margin-top: 10px;">RETURN</button>
+                </div>
+            </div>
+
+            <!-- Canvas -->
+            <canvas id="game-canvas"></canvas>
         <div id="ui-layer">
             <!-- Main Menu -->
             <div id="menu-screen" class="screen-overlay" style="display: none;">
@@ -21,8 +52,7 @@
                 <div style="display: flex; flex-direction: column; gap: 16px; width: 240px;">
                     <button id="btn-play" class="btn btn-primary">▶ PLAY</button>
                     <button id="btn-controls" class="btn">◧ CONTROLS</button>
-                    <button id="btn-sound-toggle" class="btn">♫ SOUND: ON</button>
-                    <button id="btn-music-toggle" class="btn">♪ MUSIC: OFF</button>
+                    <button id="btn-audio-settings" class="btn">⚙ AUDIO SETTINGS</button>
                 </div>
                 <div style="position: absolute; bottom: 20px; text-align: center;">
                     <p style="font-family: 'Inter', sans-serif; font-size: 12px; color: #475569; margin-bottom: 8px;">ARROW KEYS / WASD TO MOVE &bull; SPACE TO JUMP &bull; R TO END ROUND &bull; G TO PLACE GHOST</p>
@@ -79,8 +109,7 @@
                     <button id="btn-restart-level" class="btn">RESTART LEVEL</button>
                     <button id="btn-pause-menu" class="btn">LEVEL SELECT</button>
                     <button id="btn-pause-home" class="btn">HOME</button>
-                    <button id="btn-pause-sound" class="btn">♫ SOUND: ON</button>
-                    <button id="btn-pause-music" class="btn">♪ MUSIC: OFF</button>
+                    <button id="btn-pause-audio" class="btn">⚙ AUDIO SETTINGS</button>
                 </div>
             </div>
             

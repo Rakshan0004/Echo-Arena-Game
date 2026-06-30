@@ -21,8 +21,10 @@ class UI {
         this.levelCompleteScreen = document.getElementById('levelcomplete-screen');
         this.pauseScreen = document.getElementById('pause-screen');
         this.controlsScreen = document.getElementById('controls-screen');
+        this.audioSettingsScreen = document.getElementById('audio-settings-screen');
         this.levelGrid = document.getElementById('level-grid');
         
+        this.previousStateForAudio = null;
         this.lastState = null;
         
         this.bindEvents();
@@ -37,11 +39,31 @@ class UI {
         document.getElementById('btn-controls').addEventListener('click', () => {
             this.game.state = STATE.CONTROLS;
         });
-        document.getElementById('btn-sound-toggle').addEventListener('click', (e) => {
+        document.getElementById('btn-audio-settings').addEventListener('click', () => {
+            this.previousStateForAudio = this.game.state;
+            this.game.state = STATE.AUDIO_SETTINGS;
+        });
+        
+        // Audio Settings Panel
+        document.getElementById('btn-audio-back').addEventListener('click', () => {
+            this.game.state = this.previousStateForAudio || STATE.MENU;
+        });
+        document.getElementById('btn-sfx-toggle').addEventListener('click', () => {
             this.toggleSound();
         });
-        document.getElementById('btn-music-toggle').addEventListener('click', (e) => {
-            this.toggleMusic();
+        document.querySelectorAll('.track-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const trackIdx = parseInt(e.target.dataset.track);
+                if (this.game.music) {
+                    this.game.music.play(trackIdx);
+                    this.updateAudioUI();
+                }
+            });
+        });
+        document.getElementById('bgm-volume').addEventListener('input', (e) => {
+            if (this.game.music) {
+                this.game.music.setVolume(parseFloat(e.target.value));
+            }
         });
         
         // Level Select
@@ -88,11 +110,9 @@ class UI {
         document.getElementById('btn-pause-home').addEventListener('click', () => {
             this.game.state = STATE.MENU;
         });
-        document.getElementById('btn-pause-sound').addEventListener('click', (e) => {
-            this.toggleSound();
-        });
-        document.getElementById('btn-pause-music').addEventListener('click', (e) => {
-            this.toggleMusic();
+        document.getElementById('btn-pause-audio').addEventListener('click', () => {
+            this.previousStateForAudio = this.game.state;
+            this.game.state = STATE.AUDIO_SETTINGS;
         });
         
         // Controls
@@ -132,18 +152,31 @@ class UI {
             } else {
                 this.game.audio.masterGain.gain.value = 0;
             }
-            const text = `♫ SOUND: ${this.game.audio.enabled ? 'ON' : 'OFF'}`;
-            document.getElementById('btn-sound-toggle').innerText = text;
-            document.getElementById('btn-pause-sound').innerText = text;
+            this.updateAudioUI();
         }
     }
     
-    toggleMusic() {
+    updateAudioUI() {
+        if (this.game.audio) {
+            const btn = document.getElementById('btn-sfx-toggle');
+            btn.innerText = this.game.audio.enabled ? 'ENABLED' : 'DISABLED';
+            btn.className = this.game.audio.enabled ? 'btn btn-primary' : 'btn';
+            btn.style.width = '100%';
+            btn.style.padding = '10px';
+        }
         if (this.game.music) {
-            const nextTrackName = this.game.music.nextTrack();
-            const text = `♪ MUSIC: ${nextTrackName === 'None' ? 'OFF' : nextTrackName.toUpperCase()}`;
-            document.getElementById('btn-music-toggle').innerText = text;
-            document.getElementById('btn-pause-music').innerText = text;
+            document.querySelectorAll('.track-btn').forEach(btn => {
+                const idx = parseInt(btn.dataset.track);
+                if (idx === this.game.music.currentTrackIndex) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+            const slider = document.getElementById('bgm-volume');
+            if (slider && document.activeElement !== slider) {
+                slider.value = this.game.music.volume;
+            }
         }
     }
     
@@ -154,6 +187,7 @@ class UI {
         this.levelCompleteScreen.style.display = 'none';
         this.pauseScreen.style.display = 'none';
         this.controlsScreen.style.display = 'none';
+        this.audioSettingsScreen.style.display = 'none';
     }
     
     update() {
@@ -203,6 +237,10 @@ class UI {
                 break;
             case STATE.CONTROLS:
                 this.controlsScreen.style.display = 'flex';
+                break;
+            case STATE.AUDIO_SETTINGS:
+                this.updateAudioUI();
+                this.audioSettingsScreen.style.display = 'flex';
                 break;
         }
         

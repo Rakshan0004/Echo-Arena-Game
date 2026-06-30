@@ -133,3 +133,72 @@ html, body {
 #ui-layer > * {
     pointer-events: auto; /* re-enable on direct children */
 }
+
+/* Industrial Audio Panel */
+.industrial-panel {
+    background: #0d1117;
+    border: 2px solid #30363d;
+    border-radius: 4px;
+    padding: 30px;
+    width: 320px;
+    box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.8), 0 0 30px rgba(0, 245, 255, 0.1);
+    position: relative;
+    overflow: hidden;
+}
+.industrial-panel::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 5px;
+    background: repeating-linear-gradient(45deg, #ff6b35, #ff6b35 10px, #000 10px, #000 20px);
+}
+.industrial-panel .panel-title {
+    font-family: 'Orbitron', sans-serif;
+    color: #e2e8f0;
+    text-align: center;
+    margin-bottom: 25px;
+    font-size: 20px;
+    letter-spacing: 2px;
+    border-bottom: 1px solid #30363d;
+    padding-bottom: 10px;
+}
+.setting-group {
+    margin-bottom: 20px;
+}
+.setting-group label {
+    display: block;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 10px;
+    color: #94a3b8;
+    margin-bottom: 8px;
+    letter-spacing: 1px;
+}
+.track-list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+.track-btn {
+    background: #161b22;
+    border: 1px solid #30363d;
+    color: #8b949e;
+    padding: 8px 12px;
+    text-align: left;
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.1s;
+}
+.track-btn:hover {
+    background: #1f2428;
+    color: #c9d1d9;
+}
+.track-btn.active {
+    background: rgba(0, 245, 255, 0.1);
+    border-color: #00f5ff;
+    color: #00f5ff;
+    box-shadow: inset 0 0 10px rgba(0, 245, 255, 0.1);
+}
+.industrial-slider {
+    width: 100%;
+    accent-color: #00f5ff;
+}
