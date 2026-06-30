@@ -12,8 +12,10 @@ class MusicManager {
         this.tracks = [
             { name: 'None', url: null },
             { name: 'Alan Walker - Faded', url: 'https://archive.org/download/Faded/Faded.mp3' },
-            { name: 'Alan Walker - Spectre', url: 'https://archive.org/download/AlanWalkerSpectreNCSRelease_201612/Alan%20Walker%20-%20Spectre%20%5BNCS%20Release%5D.mp3' },
-            { name: 'Cartoon - On & On', url: 'https://archive.org/download/CartoonOnOnfeat.DanielLeviNCSRelease/Cartoon%20-%20On%20%20On%20%28feat.%20Daniel%20Levi%29%20%5BNCS%20Release%5D.mp3' }
+            { name: 'Kanye West - Stronger', url: 'https://archive.org/download/kanye-west-stronger_202603/Kanye%20West%20-%20Stronger.mp3' },
+            { name: 'Cartoon - On & On', url: 'https://archive.org/download/CartoonOnOnfeat.DanielLeviNCSRelease/Cartoon%20-%20On%20%20On%20%28feat.%20Daniel%20Levi%29%20%5BNCS%20Release%5D.mp3' },
+            { name: 'Elektronomia - Sky High', url: 'https://archive.org/download/ElektronomiaSkyHigh/Elektronomia%20-%20Sky%20High.mp3' },
+            { name: 'Syn Cole - Feel Good', url: 'https://archive.org/download/SynColeFeelGoodNCSRelease_201612/Syn%20Cole%20-%20Feel%20Good%20%5BNCS%20Release%5D.mp3' }
         ];
         
         this.currentTrackIndex = 0; // 0 = None
@@ -56,7 +58,6 @@ class MusicManager {
         if (this.onStateChange) this.onStateChange();
         
         this.audio = new Audio(track.url);
-        this.audio.loop = true;
         this.audio.volume = 0; // Start silent for fade-in
         
         // Listeners for UI state
@@ -74,6 +75,17 @@ class MusicManager {
         this.audio.addEventListener('pause', () => {
             this.isPlaying = false;
             if (this.onStateChange) this.onStateChange();
+        });
+        
+        // Auto-play next track
+        this.audio.addEventListener('ended', () => {
+            if (this.currentTrackIndex > 0) {
+                let nextIdx = this.currentTrackIndex + 1;
+                if (nextIdx >= this.tracks.length) {
+                    nextIdx = 1; // Loop back to track 1
+                }
+                this.play(nextIdx);
+            }
         });
 
         this.audio.play().then(() => {
