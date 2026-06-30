@@ -146,16 +146,7 @@ class Echo {
         
         const pulse = 0.85 + Math.sin(frameCount * 0.12) * 0.15;
         
-        // Outer glow — larger and more prominent
-        const outerGlow = ctx.createRadialGradient(0, 0, 5, 0, 0, 70);
-        outerGlow.addColorStop(0, hexToRgba(color, 0.2 * pulse));
-        outerGlow.addColorStop(0.4, hexToRgba(color, 0.08 * pulse));
-        outerGlow.addColorStop(1, hexToRgba(color, 0));
-        ctx.fillStyle = outerGlow;
-        ctx.beginPath();
-        ctx.arc(0, 0, 60, 0, Math.PI * 2);
-        ctx.fill();
-        
+
         // Antenna — ghostly, swaying
         const antennaSway = Math.sin(frameCount * 0.08 + this.echoIndex) * 1.5;
         ctx.globalAlpha = 0.6;

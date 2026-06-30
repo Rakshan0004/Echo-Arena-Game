@@ -174,15 +174,6 @@ class Player {
             ctx.fill();
         }
 
-        // Outer ambient glow, pulsing gently
-        const gradient = ctx.createRadialGradient(0, 0, 5, 0, 0, 70);
-        gradient.addColorStop(0, hexToRgba(COLORS.NEON_MAGENTA, 0.28 * pulse));
-        gradient.addColorStop(0.4, hexToRgba(COLORS.NEON_MAGENTA, 0.1 * pulse));
-        gradient.addColorStop(1, hexToRgba(COLORS.NEON_MAGENTA, 0));
-        ctx.fillStyle = gradient;
-        ctx.beginPath();
-        ctx.arc(0, 0, 60, 0, Math.PI * 2);
-        ctx.fill();
 
         // Small antenna with glowing tip — adds silhouette interest
         const antennaSway = Math.sin(frameCount * 0.08) * 1.5;
