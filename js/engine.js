@@ -386,29 +386,6 @@ class Game {
                     color: Math.random() > 0.8 ? COLORS.NEON_CYAN : (Math.random() > 0.5 ? COLORS.NEON_PURPLE : '#ffffff')
                 });
             }
-            // Ambient nebula glow spots
-            this.nebulae = [];
-            for (let i = 0; i < 4; i++) {
-                this.nebulae.push({
-                    x: randRange(100, CANVAS.WIDTH - 100),
-                    y: randRange(50, CANVAS.HEIGHT - 50),
-                    radius: randRange(80, 180),
-                    color: i % 2 === 0 ? COLORS.NEON_PURPLE : COLORS.NEON_CYAN
-                });
-            }
-        }
-        
-        // Draw ambient nebula glows
-        for (const neb of this.nebulae) {
-            const grad = this.ctx.createRadialGradient(neb.x, neb.y, 0, neb.x, neb.y, neb.radius);
-            grad.addColorStop(0, hexToRgba(neb.color, 0.04));
-            grad.addColorStop(1, hexToRgba(neb.color, 0));
-            this.ctx.fillStyle = grad;
-            this.ctx.beginPath();
-            this.ctx.arc(neb.x, neb.y, neb.radius, 0, Math.PI * 2);
-            this.ctx.fill();
-        }
-        
         // Draw twinkling stars
         for (const star of this.bgStars) {
             const alpha = 0.4 + Math.sin(this.frameCount * star.twinkleSpeed + star.twinkleOffset) * 0.4;
