@@ -163,12 +163,12 @@ class Game {
         InputManager.init();
 
         try {
-            // All levels unlocked
-            this.levelProgress = Array(10).fill(true);
+            const savedProgress = localStorage.getItem('echoArena_progress');
+            this.levelProgress = savedProgress ? JSON.parse(savedProgress) : Array(10).fill(false);
             const stars = localStorage.getItem('echoArena_stars');
             this.levelStars = stars ? JSON.parse(stars) : Array(10).fill(0);
         } catch (e) {
-            this.levelProgress = Array(10).fill(true);
+            this.levelProgress = Array(10).fill(false);
             this.levelStars = Array(10).fill(0);
         }
 
