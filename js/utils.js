@@ -1,3 +1,20 @@
+/**
+ * utils.js — Shared Utility Functions & Physics Engine
+ * 
+ * Contains helper functions and the core physics simulation:
+ *  - lerp(), clamp(), rectsOverlap(), dist() — math helpers
+ *  - hexToRgba() — converts hex colors to rgba strings
+ *  - drawRoundedRect() — draws rounded rectangles on canvas
+ *  - randRange() — random number in a range
+ *  - InputManager — singleton that tracks keyboard input (arrows, WASD, space, G, ESC)
+ *  - Camera — handles viewport scrolling with smooth lerp follow, shake effects,
+ *    and coordinate transform for large levels
+ *  - simulatePhysics() — THE core shared physics function used by BOTH Player
+ *    and Echo classes. Handles gravity, movement, jumping, wall-sliding,
+ *    wall-jumping, coyote time, jump buffering, squash/stretch, and
+ *    collision resolution against the level grid. This ensures echoes
+ *    replay deterministically.
+ */
 // Lerp: linear interpolation
 function lerp(a, b, t) { return a + (b - a) * t; }
 

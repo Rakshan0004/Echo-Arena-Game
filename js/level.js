@@ -1,3 +1,16 @@
+/**
+ * level.js — Level Engine & Parser
+ * 
+ * Parses 2D numerical grids from levels.js into fully interactive maps:
+ *  - Level — tracks grid state, active entities (stars, switches, doors, lasers).
+ *  - update() — checks collisions between players/echoes and triggers:
+ *    - Switches (A-D) which toggle corresponding Doors (A-D).
+ *    - Star collection (updates score/star count).
+ *    - Laser death checks (raycasts lasers downwards or rightwards, checks overlapping rectangles).
+ *    - Portal level completion.
+ *  - render() — draws platforms, wall-jump surfaces, animated spikes, active doors,
+ *    pressed/unpressed switches, pulsing stars, locked/unlocked portal mechanics, and firing lasers.
+ */
 class Level {
     constructor(levelData) {
         this.name = levelData.name;
@@ -439,38 +452,138 @@ class Level {
         const portalActive = Object.values(this.switches).every(s => s.pressed) || Object.keys(this.switches).length === 0;
         ctx.save();
         ctx.translate(this.portalX + TILE.SIZE/2, this.portalY + TILE.SIZE/2);
+        
         if (portalActive) {
+            const pulse = 0.8 + Math.sin(frameCount * 0.08) * 0.2;
+            
+            // Layer 1: Large outer ambient glow
+            const ambientGlow = ctx.createRadialGradient(0, 0, 8, 0, 0, 45);
+            ambientGlow.addColorStop(0, hexToRgba(COLORS.NEON_CYAN, 0.25 * pulse));
+            ambientGlow.addColorStop(0.5, hexToRgba(COLORS.NEON_CYAN, 0.08 * pulse));
+            ambientGlow.addColorStop(1, hexToRgba(COLORS.NEON_CYAN, 0));
+            ctx.fillStyle = ambientGlow;
+            ctx.beginPath();
+            ctx.arc(0, 0, 45, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Layer 2: Outer spinning ring — thick, glowing
+            ctx.save();
+            ctx.rotate(frameCount * 0.02);
+            ctx.strokeStyle = hexToRgba(COLORS.NEON_CYAN, 0.3);
+            ctx.lineWidth = 3;
+            ctx.shadowColor = COLORS.NEON_CYAN;
+            ctx.shadowBlur = 10;
+            ctx.beginPath();
+            ctx.arc(0, 0, 22, 0, Math.PI * 2);
+            ctx.stroke();
+            ctx.shadowBlur = 0;
+            ctx.restore();
+            
+            // Layer 3: Swirling energy arcs (3 arcs, spaced evenly)
             for (let i = 0; i < 3; i++) {
                 ctx.save();
-                ctx.rotate(frameCount * 0.03 + i * 2.094);
-                const grad = ctx.createLinearGradient(0, -20, 0, 20);
-                grad.addColorStop(0, COLORS.NEON_CYAN);
-                grad.addColorStop(1, 'transparent');
-                ctx.strokeStyle = grad;
-                ctx.lineWidth = 4;
+                ctx.rotate(frameCount * 0.04 + i * (Math.PI * 2 / 3));
+                const arcGrad = ctx.createLinearGradient(0, -20, 0, 20);
+                arcGrad.addColorStop(0, hexToRgba(COLORS.NEON_CYAN, 0.9));
+                arcGrad.addColorStop(0.5, hexToRgba('#00ff88', 0.6));
+                arcGrad.addColorStop(1, hexToRgba(COLORS.NEON_CYAN, 0));
+                ctx.strokeStyle = arcGrad;
+                ctx.lineWidth = 3.5;
+                ctx.shadowColor = COLORS.NEON_CYAN;
+                ctx.shadowBlur = 12;
+                ctx.lineCap = 'round';
                 ctx.beginPath();
-                ctx.arc(0, 0, 18, 0, Math.PI / 1.5);
+                ctx.arc(0, 0, 17, 0, Math.PI / 1.8);
                 ctx.stroke();
+                ctx.shadowBlur = 0;
                 ctx.restore();
             }
+            
+            // Layer 4: Counter-rotating inner arcs (2 arcs, thinner)
+            for (let i = 0; i < 2; i++) {
+                ctx.save();
+                ctx.rotate(-frameCount * 0.06 + i * Math.PI);
+                ctx.strokeStyle = hexToRgba('#00ff88', 0.5);
+                ctx.lineWidth = 2;
+                ctx.shadowColor = '#00ff88';
+                ctx.shadowBlur = 8;
+                ctx.lineCap = 'round';
+                ctx.beginPath();
+                ctx.arc(0, 0, 12, 0, Math.PI / 2.5);
+                ctx.stroke();
+                ctx.shadowBlur = 0;
+                ctx.restore();
+            }
+            
+            // Layer 5: Pulsing inner vortex
             const innerGrad = ctx.createRadialGradient(0, 0, 0, 0, 0, 14);
-            innerGrad.addColorStop(0, hexToRgba(COLORS.NEON_CYAN, 0.6));
-            innerGrad.addColorStop(1, 'transparent');
+            innerGrad.addColorStop(0, hexToRgba('#ffffff', 0.7 * pulse));
+            innerGrad.addColorStop(0.3, hexToRgba(COLORS.NEON_CYAN, 0.5 * pulse));
+            innerGrad.addColorStop(0.7, hexToRgba('#00ff88', 0.2 * pulse));
+            innerGrad.addColorStop(1, hexToRgba(COLORS.NEON_CYAN, 0));
             ctx.fillStyle = innerGrad;
             ctx.beginPath();
-            ctx.arc(0, 0, 14, 0, Math.PI*2);
+            ctx.arc(0, 0, 14, 0, Math.PI * 2);
             ctx.fill();
-        } else {
-            ctx.strokeStyle = hexToRgba(COLORS.NEON_ORANGE, 0.4);
-            ctx.lineWidth = 2;
-            ctx.beginPath();
-            ctx.arc(0, 0, 16, 0, Math.PI*2);
-            ctx.stroke();
             
-            ctx.fillStyle = COLORS.NEON_ORANGE;
-            ctx.font = '10px Orbitron';
-            ctx.textAlign = 'center';
-            ctx.fillText('LOCKED', 0, 4);
+            // Layer 6: Bright white core dot
+            ctx.fillStyle = hexToRgba('#ffffff', 0.8 * pulse);
+            ctx.shadowColor = COLORS.NEON_CYAN;
+            ctx.shadowBlur = 20;
+            ctx.beginPath();
+            ctx.arc(0, 0, 4 * pulse, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.shadowBlur = 0;
+            
+            // Layer 7: Four rotating rune-like marks on the outer edge
+            for (let i = 0; i < 4; i++) {
+                const angle = frameCount * -0.03 + i * (Math.PI / 2);
+                const mx = Math.cos(angle) * 22;
+                const my = Math.sin(angle) * 22;
+                ctx.fillStyle = hexToRgba(COLORS.NEON_CYAN, 0.6);
+                ctx.shadowColor = COLORS.NEON_CYAN;
+                ctx.shadowBlur = 6;
+                ctx.beginPath();
+                ctx.arc(mx, my, 2, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            ctx.shadowBlur = 0;
+            
+        } else {
+            // Locked portal — dim, pulsing warning
+            const lockPulse = 0.5 + Math.sin(frameCount * 0.06) * 0.2;
+            
+            // Dim outer glow
+            const dimGlow = ctx.createRadialGradient(0, 0, 4, 0, 0, 30);
+            dimGlow.addColorStop(0, hexToRgba(COLORS.NEON_ORANGE, 0.1 * lockPulse));
+            dimGlow.addColorStop(1, hexToRgba(COLORS.NEON_ORANGE, 0));
+            ctx.fillStyle = dimGlow;
+            ctx.beginPath();
+            ctx.arc(0, 0, 30, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Dashed ring
+            ctx.strokeStyle = hexToRgba(COLORS.NEON_ORANGE, 0.35 * lockPulse);
+            ctx.lineWidth = 2;
+            ctx.setLineDash([4, 6]);
+            ctx.beginPath();
+            ctx.arc(0, 0, 18, 0, Math.PI * 2);
+            ctx.stroke();
+            ctx.setLineDash([]);
+            
+            // Lock icon — small padlock shape
+            ctx.strokeStyle = hexToRgba(COLORS.NEON_ORANGE, 0.6 * lockPulse);
+            ctx.lineWidth = 2;
+            ctx.lineCap = 'round';
+            // Lock body
+            ctx.fillStyle = hexToRgba(COLORS.NEON_ORANGE, 0.15);
+            drawRoundedRect(ctx, -5, -2, 10, 9, 2);
+            ctx.fill();
+            ctx.strokeRect(-5, -2, 10, 9);
+            // Lock shackle
+            ctx.beginPath();
+            ctx.arc(0, -3, 5, Math.PI, 0);
+            ctx.stroke();
         }
         ctx.restore();
     }

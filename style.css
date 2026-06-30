@@ -38,6 +38,7 @@ html, body {
     justify-content: center;
     flex-direction: column;
     z-index: 10;
+    transition: transform 0.1s ease-out;
 }
 
 /* Buttons */

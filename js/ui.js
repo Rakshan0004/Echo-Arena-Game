@@ -1,3 +1,15 @@
+/**
+ * ui.js — HTML UI Overlay & Canvas HUD Controller
+ * 
+ * Manages screen overlay transitions, button binding, and canvas overlay displays:
+ *  - UI — maps HTML screens (menu, levelselect, roundend, levelcomplete, pause, controls)
+ *    and updates displays depending on state.
+ *  - buildLevelGrid() — builds level cards with 3-star icons based on save progression.
+ *  - renderHUD() — draws in-game HUD indicators (Level Name, active round count,
+ *    remaining echoes, hints, and active prompts).
+ *  - Event bindings — handles buttons for menu, level select, controls, sound toggle.
+ *  - Menu Parallax — tracks mousemove events to apply a 3D tilt perspective transform.
+ */
 class UI {
     constructor(game) {
         this.game = game;
@@ -87,6 +99,17 @@ class UI {
             btn.addEventListener('click', () => {
                 if (this.game.audio) this.game.audio.play('switchPress');
             });
+        });
+        
+        // Interactive Menu Parallax
+        document.addEventListener('mousemove', (e) => {
+            if (this.game.state === STATE.MENU) {
+                const xAxis = (window.innerWidth / 2 - e.pageX) / 25;
+                const yAxis = (window.innerHeight / 2 - e.pageY) / 25;
+                this.menuScreen.style.transform = `perspective(1000px) rotateY(${xAxis}deg) rotateX(${yAxis}deg)`;
+            } else {
+                this.menuScreen.style.transform = 'none';
+            }
         });
     }
     

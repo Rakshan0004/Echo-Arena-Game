@@ -1,3 +1,13 @@
+/**
+ * levels.js — Level Layout Definitions & Metadata
+ * 
+ * Declares the global LEVEL_DATA array containing metadata and grid configurations
+ * for all game levels (Levels 1 to 9).
+ * Each level defines:
+ *  - name / subtitle / hint / maxRounds / parRounds
+ *  - grid: a 2D array of integers mapping coordinates to platforms, wall-jump blocks,
+ *    spikes, switches, doors, lasers, portals, spawn points, and stars.
+ */
 const LEVEL_DATA = [
     {
         name: "Awakening",

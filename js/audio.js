@@ -1,3 +1,20 @@
+/**
+ * audio.js — Sound Effects & Ambient Audio Manager
+ * 
+ * Manages game sound effects synthetically generated using Web Audio API:
+ *  - AudioManager — initializes AudioContext and handles global sound toggle/volume controls.
+ *  - Synthesized Sound Effects:
+ *    - 'jump' (FM synth, pitch sweep)
+ *    - 'wallJump' (noise band + high pass filter)
+ *    - 'land' (low-pitched pop + short decay)
+ *    - 'switchPress' (high frequency beep + sustain)
+ *    - 'death' (detuned low-frequency sawtooth downward sweep)
+ *    - 'portal' (arpeggiated major chord resonant sweep)
+ *    - 'star' (sparkling chime arpeggio)
+ *    - 'laserDeath' (explosive filtered noise burst)
+ *    - 'roundSuccess' (musical resolution sound)
+ *  - Audio context suspension safety recovery handling.
+ */
 class AudioManager {
     constructor() {
         const AudioContext = window.AudioContext || window.webkitAudioContext;

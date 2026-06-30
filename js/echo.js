@@ -1,3 +1,12 @@
+/**
+ * echo.js — Replaying Ghost Characters (Echoes)
+ * 
+ * Defines the Echo class, which replays the recorded inputs of previous rounds:
+ *  - Echo — stores a physics state compatible with simulatePhysics(), allowing deterministic replication.
+ *  - update() — steps the current input index and re-runs simulatePhysics().
+ *  - render() — draws the echo character with a ghostly purple/violet color scheme,
+ *    swaying antenna, pulsing core, glowing visor, motion trail, afterimages, and surrounding particles.
+ */
 const ECHO_COLORS = [
     '#8b5cf6', // purple
     '#a855f7', // violet
@@ -135,26 +144,56 @@ class Echo {
         ctx.translate(this.x + this.w / 2, this.y + this.h / 2);
         ctx.scale(this.squashX * this.facing, this.squashY);
         
+        const pulse = 0.85 + Math.sin(frameCount * 0.12) * 0.15;
+        
         // Outer glow — larger and more prominent
-        const outerGlow = ctx.createRadialGradient(0, 0, 0, 0, 0, 55);
-        outerGlow.addColorStop(0, hexToRgba(color, 0.15));
-        outerGlow.addColorStop(0.5, hexToRgba(color, 0.05));
+        const outerGlow = ctx.createRadialGradient(0, 0, 5, 0, 0, 70);
+        outerGlow.addColorStop(0, hexToRgba(color, 0.2 * pulse));
+        outerGlow.addColorStop(0.4, hexToRgba(color, 0.08 * pulse));
         outerGlow.addColorStop(1, hexToRgba(color, 0));
         ctx.fillStyle = outerGlow;
         ctx.beginPath();
-        ctx.arc(0, 0, 55, 0, Math.PI * 2);
+        ctx.arc(0, 0, 60, 0, Math.PI * 2);
         ctx.fill();
         
-        // Body — semi-transparent with glow
+        // Antenna — ghostly, swaying
+        const antennaSway = Math.sin(frameCount * 0.08 + this.echoIndex) * 1.5;
         ctx.globalAlpha = 0.6;
-        const bodyGrad = ctx.createLinearGradient(0, -19, 0, 19);
-        bodyGrad.addColorStop(0, hexToRgba(color, 0.4));
-        bodyGrad.addColorStop(1, hexToRgba(color, 0.15));
+        ctx.strokeStyle = hexToRgba(color, 0.7);
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(0, -19);
+        ctx.lineTo(antennaSway, -27);
+        ctx.stroke();
+        ctx.fillStyle = color;
+        ctx.shadowColor = color;
+        ctx.shadowBlur = 12 * pulse;
+        ctx.beginPath();
+        ctx.arc(antennaSway, -27, 3, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.shadowBlur = 0;
+        ctx.globalAlpha = 1;
+        
+        // Body — semi-transparent with richer gradient (matches player structure)
+        ctx.globalAlpha = 0.55;
+        const bodyGrad = ctx.createLinearGradient(-16, -19, 16, 19);
+        bodyGrad.addColorStop(0, hexToRgba(color, 0.45));
+        bodyGrad.addColorStop(0.55, hexToRgba(color, 0.2));
+        bodyGrad.addColorStop(1, hexToRgba(color, 0.1));
         ctx.fillStyle = bodyGrad;
         drawRoundedRect(ctx, -16, -19, 32, 38, 8);
         ctx.fill();
         
-        // Neon outline — the ghost's signature look
+        // Top sheen — ghostly gloss
+        ctx.globalAlpha = 0.3;
+        const sheen = ctx.createLinearGradient(0, -19, 0, -4);
+        sheen.addColorStop(0, hexToRgba('#ffffff', 0.15));
+        sheen.addColorStop(1, hexToRgba('#ffffff', 0));
+        ctx.fillStyle = sheen;
+        drawRoundedRect(ctx, -16, -19, 32, 15, 8);
+        ctx.fill();
+        
+        // Neon outline — the ghost's signature look with glow
         ctx.globalAlpha = 0.8;
         ctx.strokeStyle = color;
         ctx.shadowColor = color;
@@ -164,23 +203,50 @@ class Echo {
         ctx.stroke();
         ctx.shadowBlur = 0;
         
-        // Visor — echo color
-        ctx.globalAlpha = 0.9;
-        ctx.fillStyle = color;
+        // Chest energy core — echo color, pulsing
+        ctx.globalAlpha = 0.7;
+        ctx.fillStyle = hexToRgba(color, 0.9);
         ctx.shadowColor = color;
-        ctx.shadowBlur = 10;
-        drawRoundedRect(ctx, -10, -14, 20, 8, 4);
+        ctx.shadowBlur = 14 * pulse;
+        ctx.beginPath();
+        ctx.arc(0, 7, 3.2 * pulse, 0, Math.PI * 2);
         ctx.fill();
         ctx.shadowBlur = 0;
         
-        // Echo number indicator — small text
-        ctx.globalAlpha = 0.5;
-        ctx.fillStyle = '#ffffff';
-        ctx.font = '10px Orbitron, sans-serif';
-        ctx.textAlign = 'center';
-        ctx.fillText('#' + (this.echoIndex + 1), 0, 8);
-        ctx.textAlign = 'start';
+        // Visor — glowing eye matching player shape
+        ctx.globalAlpha = 0.85;
+        ctx.fillStyle = hexToRgba('#ffffff', 0.7);
+        ctx.shadowColor = color;
+        ctx.shadowBlur = 20;
+        drawRoundedRect(ctx, -10, -14, 20, 8, 4);
+        ctx.fill();
+        ctx.shadowBlur = 8;
+        ctx.fill();
+        ctx.shadowBlur = 0;
         
+        // Iris — tracking eye like the player
+        const irisX = clampValue((this.vx || 0) * 0.4, -3, 3);
+        const irisY = clampValue((this.vy || 0) * 0.15, -1.5, 1.5);
+        ctx.globalAlpha = 0.9;
+        ctx.fillStyle = color;
+        ctx.shadowColor = color;
+        ctx.shadowBlur = 6;
+        ctx.beginPath();
+        ctx.arc(irisX, -10 + irisY, 2.4, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.shadowBlur = 0;
+        
+        // Legs — ghostly, semi-transparent, matching player idle stance
+        ctx.globalAlpha = 0.45;
+        ctx.fillStyle = hexToRgba(color, 0.25);
+        ctx.strokeStyle = hexToRgba(color, 0.5);
+        ctx.lineWidth = 1.5;
+        drawRoundedRect(ctx, -6, 14, 5, 6, 2);
+        ctx.fill(); ctx.stroke();
+        drawRoundedRect(ctx, 2, 14, 5, 6, 2);
+        ctx.fill(); ctx.stroke();
+        
+        ctx.globalAlpha = 1;
         ctx.restore();
         
         // Floating particles around echo

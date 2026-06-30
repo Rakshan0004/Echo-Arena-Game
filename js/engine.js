@@ -1,3 +1,15 @@
+/**
+ * engine.js — Main Game loop & Engine Controller
+ * 
+ * Coordinates the entire game cycle and holds key subsystems:
+ *  - InputManager (singleton) — captures raw keydown/keyup events for controls.
+ *  - Game — the main engine class managing level progression, local storage save states,
+ *    current round recordings, active echoes, camera transitions, and state machine updates.
+ *  - loop() — standard requestAnimationFrame game loop updating and rendering at 60fps.
+ *  - renderBackgroundStars() — draws custom layered twinkling stars and neon nebulae.
+ *  - handles menu rendering, custom scaled up player/echo models on the home page,
+ *    and overlays/transitions.
+ */
 const InputManager = {
     keys: {},
     justPressed: {},
@@ -312,6 +324,40 @@ class Game {
 
             this.ctx.setTransform(1, 0, 0, 1, 0, 0);
             this.ui.renderHUD(this.ctx);
+        } else if (this.state === STATE.MENU) {
+            // Render demo characters on home page
+            if (!this.demoPlayer) {
+                this.demoPlayer = new Player(0, 0);
+                this.demoEcho = new Echo([], 0, 0, 0);
+            }
+            
+            // Idle floating animation
+            const hover1 = Math.sin(this.frameCount * 0.04) * 8;
+            const hover2 = Math.sin(this.frameCount * 0.04 + Math.PI) * 8;
+            
+            // We scale up by 10x. We set coordinates scaled down so they end up at the correct screen position
+            const scale = 10;
+            this.ctx.save();
+            this.ctx.scale(scale, scale);
+            
+            this.demoPlayer.x = (CANVAS.WIDTH * 0.2) / scale - 16;
+            this.demoPlayer.y = (CANVAS.HEIGHT * 0.5) / scale - 19 + (hover1 / scale);
+            this.demoPlayer.squashY = 1 + Math.sin(this.frameCount * 0.08) * 0.03;
+            this.demoPlayer.facing = 1;
+            this.demoPlayer.vx = 0;
+            this.demoPlayer.vy = hover1 * 0.2; // So the iris tracks the subtle movement
+            
+            this.demoEcho.x = (CANVAS.WIDTH * 0.8) / scale - 16;
+            this.demoEcho.y = (CANVAS.HEIGHT * 0.5) / scale - 19 + (hover2 / scale);
+            this.demoEcho.squashY = 1 + Math.sin(this.frameCount * 0.08 + Math.PI) * 0.03;
+            this.demoEcho.facing = -1;
+            this.demoEcho.vx = 0;
+            this.demoEcho.vy = hover2 * 0.2;
+            
+            this.demoPlayer.render(this.ctx, this.frameCount);
+            this.demoEcho.render(this.ctx, this.frameCount);
+            
+            this.ctx.restore();
         }
 
         this.ui.renderOverlays(this.ctx);

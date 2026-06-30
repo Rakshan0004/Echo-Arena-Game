@@ -1,3 +1,17 @@
+/**
+ * constants.js — Game Configuration & Constants
+ * 
+ * Defines all global constants used across the game:
+ *  - COLORS: Neon color palette (cyan, magenta, purple, green, etc.)
+ *  - CANVAS: Canvas dimensions (1280x720)
+ *  - TILE: Tile size (40px) for the grid-based level system
+ *  - PHYSICS: Gravity, friction, jump force, wall-slide/wall-jump settings
+ *  - T (Tile Types): Numeric IDs for each tile type (0=empty, 1=platform,
+ *    2/3=wall-jump surfaces, 4=spikes, 5-8=switches A-D, 9-12=doors A-D,
+ *    13=laser right, 14=laser down, 15=portal, 16=spawn, 17=star)
+ *  - STATE: Game state enum (MENU, LEVEL_SELECT, PLAYING, ROUND_END,
+ *    LEVEL_COMPLETE, PAUSED, CONTROLS)
+ */
 const COLORS = {
     BG_DARK:        '#0a0e27',    // main background
     BG_MID:         '#121836',    // secondary background

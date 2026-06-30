@@ -1,3 +1,17 @@
+/**
+ * particles.js — Particle Systems & Visual Effects
+ * 
+ * Manages particle spawning, life cycles, and custom behavior:
+ *  - ParticleSystem — global system handling update and render arrays of particles.
+ *  - Emitters / Particle types:
+ *    - 'jump' / 'land' / 'wallJump' — custom velocity kicks and smoke trails
+ *    - 'death' / 'laserDeath' — fiery ring expansions, shards, and detritus
+ *    - 'star' — sparkling trails when stars are collected
+ *    - 'switchPress' — success sparkles
+ *    - 'echoTrail' — purple sparkles following active echoes
+ *    - 'celebration' — confetti-like physics for level complete screen
+ *    - 'portal' — swirling green vortex particles drawn around active exit
+ */
 class ParticleSystem {
     constructor() {
         this.particles = [];
