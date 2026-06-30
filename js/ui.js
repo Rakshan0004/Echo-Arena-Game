@@ -159,9 +159,11 @@ class UI {
             if (this.game.state === STATE.MENU) {
                 const xAxis = (window.innerWidth / 2 - e.pageX) / 100;
                 const yAxis = (window.innerHeight / 2 - e.pageY) / 100;
-                this.menuScreen.style.transform = `perspective(1000px) rotateY(${xAxis}deg) rotateX(${yAxis}deg)`;
+                const menuContent = document.getElementById('menu-content');
+                if (menuContent) menuContent.style.transform = `perspective(1000px) rotateY(${xAxis}deg) rotateX(${yAxis}deg)`;
             } else {
-                this.menuScreen.style.transform = 'none';
+                const menuContent = document.getElementById('menu-content');
+                if (menuContent) menuContent.style.transform = 'none';
             }
         });
     }
