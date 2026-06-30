@@ -42,7 +42,6 @@ class MusicManager {
         this.audio = new Audio(track.url);
         this.audio.loop = true;
         this.audio.volume = 0; // Start silent for fade-in
-        this.audio.crossOrigin = 'anonymous';
         
         this.audio.play().then(() => {
             this.isPlaying = true;
