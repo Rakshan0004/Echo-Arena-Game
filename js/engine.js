@@ -139,7 +139,7 @@ class Game {
         this.player = null;
         this.level = null;
         this.ui = new UI(this);
-        
+
         this.particles = new ParticleSystem();
         this.celebrationParticles = new ParticleSystem();
         this.audio = new AudioManager();
@@ -173,20 +173,20 @@ class Game {
         }
 
         this.state = STATE.MENU;
-        
+
         window.addEventListener('keydown', (e) => {
             if (e.key === 'Escape' || e.key === 'Esc') {
                 if (this.state === STATE.PLAYING) this.state = STATE.PAUSED;
                 else if (this.state === STATE.PAUSED) this.state = STATE.PLAYING;
             }
         });
-        
+
         document.addEventListener('visibilitychange', () => {
             if (document.hidden && this.state === STATE.PLAYING) {
                 this.state = STATE.PAUSED;
             }
         });
-        
+
         requestAnimationFrame(this.loop.bind(this));
     }
 
@@ -197,7 +197,7 @@ class Game {
         this.canvas.height = CANVAS.HEIGHT;
         this.canvas.style.width = CANVAS.WIDTH + 'px';
         this.canvas.style.height = CANVAS.HEIGHT + 'px';
-        
+
         // Force regeneration of background stars to cover the new screen size
         this.bgStars = null;
         this.nebulae = null;
@@ -229,7 +229,7 @@ class Game {
                     this.transition.active = false;
                 }
             }
-            return; 
+            return;
         }
 
         if (this.particles) this.particles.update();
@@ -254,18 +254,18 @@ class Game {
     }
 
     updatePlaying() {
-        if (!this.level) return; 
+        if (!this.level) return;
 
         if (this.player) {
             this.player.update(this.level, InputManager);
         }
-        
+
         for (const echo of this.echoes) {
             echo.update(this.level);
         }
-        
+
         const levelStatus = this.level.update(this.player, this.echoes, this.frameCount);
-        
+
         if (this.player) {
             this.camera.follow(this.player.x + this.player.w / 2, this.player.y + this.player.h / 2, this.level.pixelWidth, this.level.pixelHeight);
         }
@@ -274,17 +274,17 @@ class Game {
         if (levelStatus === 'COMPLETE') {
             this.startTransition(() => this.completeLevel());
         }
-        
+
         if (this.player && this.player.y > this.level.pixelHeight + 50) {
             this.player.die();
         }
-        
+
         if (InputManager.wasPressed('KeyG') && !this.player.dead) {
             if (this.currentRound + 1 < this.maxRounds) {
                 if (this.audio) this.audio.play('roundEnd');
                 this.recordings.push(this.player.getRecording());
                 this.currentRound++;
-                
+
                 // Seamlessly restart with a quick transition instead of a confusing menu
                 this.startTransition(() => {
                     this.restartRound();
@@ -332,33 +332,33 @@ class Game {
                 this.demoPlayer = new Player(0, 0);
                 this.demoEcho = new Echo([], 0, 0, 0);
             }
-            
+
             // Idle floating animation
             const hover1 = Math.sin(this.frameCount * 0.04) * 8;
             const hover2 = Math.sin(this.frameCount * 0.04 + Math.PI) * 8;
-            
+
             // We scale up by 10x. We set coordinates scaled down so they end up at the correct screen position
             const scale = 10;
             this.ctx.save();
             this.ctx.scale(scale, scale);
-            
+
             this.demoPlayer.x = (CANVAS.WIDTH * 0.2) / scale - 16;
             this.demoPlayer.y = (CANVAS.HEIGHT * 0.5) / scale - 19 + (hover1 / scale);
             this.demoPlayer.squashY = 1 + Math.sin(this.frameCount * 0.08) * 0.03;
             this.demoPlayer.facing = 1;
             this.demoPlayer.vx = 0;
             this.demoPlayer.vy = hover1 * 0.2; // So the iris tracks the subtle movement
-            
+
             this.demoEcho.x = (CANVAS.WIDTH * 0.8) / scale - 16;
             this.demoEcho.y = (CANVAS.HEIGHT * 0.5) / scale - 19 + (hover2 / scale);
             this.demoEcho.squashY = 1 + Math.sin(this.frameCount * 0.08 + Math.PI) * 0.03;
             this.demoEcho.facing = -1;
             this.demoEcho.vx = 0;
             this.demoEcho.vy = hover2 * 0.2;
-            
+
             this.demoPlayer.render(this.ctx, this.frameCount);
             this.demoEcho.render(this.ctx, this.frameCount);
-            
+
             this.ctx.restore();
         }
 
@@ -372,7 +372,7 @@ class Game {
 
         this.renderTransition(this.ctx);
     }
-    
+
     renderBackgroundStars() {
         if (!this.bgStars) {
             this.bgStars = [];
@@ -387,7 +387,7 @@ class Game {
                 });
             }
         }
-        
+
         // Draw twinkling stars
         for (const star of this.bgStars) {
             const alpha = 0.4 + Math.sin(this.frameCount * star.twinkleSpeed + star.twinkleOffset) * 0.4;
@@ -426,21 +426,21 @@ class Game {
 
     completeLevel() {
         this.levelProgress[this.currentLevel] = true;
-        
+
         const collectedStars = this.level.stars.filter(s => s.collected).length;
         const totalStars = this.level.stars.length;
-        
+
         let baseStars = (this.currentRound + 1 <= this.levelData.parRounds) ? 2 : 1;
         let bonusStar = (totalStars > 0 && collectedStars === totalStars) ? 1 : 0;
         if (totalStars === 0 && this.currentRound + 1 <= this.levelData.parRounds) bonusStar = 1;
-        
+
         const starsEarned = baseStars + bonusStar;
-        
+
         this.levelStars[this.currentLevel] = Math.max(this.levelStars[this.currentLevel] || 0, starsEarned);
         this.saveProgress();
-        
+
         if (this.audio) this.audio.play('levelComplete');
-        
+
         // Start celebration confetti!
         this.celebrationTimer = 180; // ~3 seconds of confetti bursts
         // Initial big burst from multiple positions
@@ -449,7 +449,7 @@ class Game {
             const y = randRange(CANVAS.HEIGHT * 0.3, CANVAS.HEIGHT * 0.6);
             this.celebrationParticles.emit('celebration', x, y);
         }
-        
+
         this.state = STATE.LEVEL_COMPLETE;
     }
 
